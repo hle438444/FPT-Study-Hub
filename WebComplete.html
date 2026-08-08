@@ -1,0 +1,1560 @@
+```html
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, minimum-scale=0.5">
+    <title>FPT Study Hub - Advanced Exam & Flashcard Suite</title>
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   
+    <!-- External Libraries: PDF.js & Tesseract OCR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';</script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+    <!-- MathJax for Mathematics & Physics Formulas -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+    <style>
+        :root {
+            --primary: #e65c00;
+            --primary-hover: #b84a00;
+            --primary-light: #fff2e6;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --sidebar-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #475569;
+            --correct: #059669;
+            --correct-bg: #d1fae5;
+            --incorrect: #dc2626;
+            --incorrect-bg: #fee2e2;
+            --border-color: #cbd5e1;
+            --option-hover: #f1f5f9;
+            --explanation-bg: #fefce8;
+            --explanation-border: #d97706;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --zoom-scale: 1;
+        }
+
+        [data-theme="dark"] {
+            --primary: #ff823a;
+            --primary-hover: #f37022;
+            --primary-light: #331f14;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --sidebar-bg: #182232;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --correct: #34d399;
+            --correct-bg: #064e3b;
+            --incorrect: #f87171;
+            --incorrect-bg: #7f1d1d;
+            --border-color: #334155;
+            --option-hover: #334155;
+            --explanation-bg: #2d2616;
+            --explanation-border: #d97706;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.2s, border-color 0.2s; }
+        html { width: 100%; height: 100%; font-size: calc(15px * var(--zoom-scale)); }
+        body { width: 100%; min-height: 100vh; overflow-x: hidden; font-family: 'Times New Roman', Times, serif; background-color: var(--bg-color); color: var(--text-main); display: flex; }
+
+        /* SIDEBAR */
+        aside.sidebar {
+            width: 280px; min-width: 280px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color);
+            padding: 24px 16px; display: flex; flex-direction: column; gap: 20px; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100;
+            transition: transform 0.3s ease; overflow-y: auto;
+        }
+
+        .brand-logo { display: flex; align-items: center; justify-content: space-between; font-weight: 800; font-size: 1.25rem; color: var(--primary); }
+        .brand-logo div { display: flex; align-items: center; gap: 10px; }
+        .brand-logo i { font-size: 1.5rem; }
+        .mobile-close-btn { display: none; background: none; border: none; font-size: 1.25rem; color: var(--text-main); cursor: pointer; }
+
+        .menu-group { display: flex; flex-direction: column; gap: 6px; }
+        .menu-title { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; text-transform: uppercase; font-weight: 800; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 6px; padding: 0 8px; }
+       
+        .menu-item {
+            display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-md);
+            color: var(--text-muted); font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none;
+        }
+        .menu-item:hover, .menu-item.active { background: var(--primary-light); color: var(--primary); }
+
+        .subject-list { display: flex; flex-direction: column; gap: 4px; max-height: 150px; overflow-y: auto; padding-right: 4px; }
+        .subject-chip { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+        .subject-chip:hover { background: var(--option-hover); }
+        .subject-chip.active { background: var(--primary); color: white; }
+        .subject-actions { display: flex; gap: 6px; }
+        .subject-actions i { font-size: 0.85rem; opacity: 0.8; padding: 2px 4px; }
+        .subject-actions i:hover { opacity: 1; color: var(--incorrect); }
+
+        .btn-add-subject { background: none; border: 1px dashed var(--primary); color: var(--primary); padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 700; width: 100%; text-align: center; margin-top: 6px; }
+        .btn-add-subject:hover { background: var(--primary-light); }
+
+        /* MAIN CONTENT */
+        main.content { margin-left: 280px; flex: 1; padding: 32px; width: calc(100% - 280px); min-width: 0; min-height: 100vh; overflow-y: auto; }
+
+        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px; flex-wrap: wrap; }
+        .header-title h2 { font-size: 1.5rem; font-weight: 800; word-break: break-word; }
+        .header-title p { font-size: 1rem; color: var(--text-muted); }
+
+        .top-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        
+        .btn-theme-toggle {
+            background: var(--card-bg); border: 2px solid var(--primary); color: var(--primary);
+            width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; flex-shrink: 0; box-shadow: var(--shadow-sm); font-size: 1.2rem; transition: var(--transition);
+        }
+        .btn-theme-toggle:hover { background: var(--primary); color: #ffffff; transform: scale(1.08); box-shadow: var(--shadow-md); }
+
+        .btn-icon { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; box-shadow: var(--shadow-sm); }
+        .mobile-menu-toggle { display: none; background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); width: 40px; height: 40px; border-radius: var(--radius-md); align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; }
+
+        /* ZOOM CONTROLS */
+        .zoom-control-group { display: flex; align-items: center; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 30px; padding: 2px 8px; gap: 4px; height: 40px; box-shadow: var(--shadow-sm); }
+        .zoom-control-group button { background: none; border: none; color: var(--text-main); cursor: pointer; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; }
+        .zoom-control-group button:hover { background: var(--primary-light); color: var(--primary); }
+        .zoom-control-group span { font-size: 0.9rem; font-weight: 700; min-width: 42px; text-align: center; color: var(--primary); }
+
+        .tab-content { display: none; width: 100%; }
+        .tab-content.active { display: block; animation: fadeIn 0.25s ease; }
+
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow-sm); width: 100%; overflow-x: auto; }
+        .card-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; color: var(--primary); gap: 10px; flex-wrap: wrap; }
+
+        /* INTRO SECTION */
+        .intro-section {
+            background: linear-gradient(135deg, var(--card-bg) 0%, var(--primary-light) 100%);
+            border-left: 6px solid var(--primary); padding: 24px; border-radius: var(--radius-lg); margin-bottom: 24px; box-shadow: var(--shadow-sm); width: 100%;
+        }
+        .intro-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 16px; }
+        .intro-card { background: var(--card-bg); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); transition: var(--transition); }
+        .intro-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+        .intro-card h4 { display: flex; align-items: center; gap: 8px; color: var(--primary); margin-bottom: 10px; font-size: 1.05rem; font-weight: 700; }
+        .intro-card ul { list-style: none; padding-left: 0; }
+        .intro-card ul li { position: relative; padding-left: 16px; margin-bottom: 6px; font-size: 0.95rem; color: var(--text-muted); word-break: break-word; }
+        .intro-card ul li::before { content: "•"; color: var(--primary); font-weight: bold; position: absolute; left: 0; }
+
+        /* FLASHCARD STYLES */
+        .flashcard-container { display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 10px; width: 100%; }
+        .flashcard {
+            width: 100%; min-height: 240px; background: linear-gradient(145deg, var(--card-bg), var(--option-hover));
+            border: 2px solid var(--border-color); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; padding: 24px; text-align: center; box-shadow: var(--shadow-md); transition: var(--transition); position: relative; word-break: break-word;
+        }
+        .flashcard:hover { border-color: var(--primary); transform: scale(1.01); }
+        .flashcard-inner { font-size: 1.15rem; font-weight: 700; color: var(--text-main); }
+        .flashcard-controls { display: flex; gap: 12px; justify-content: center; width: 100%; flex-wrap: wrap; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+        .form-group label { font-size: 0.95rem; font-weight: 700; }
+        .form-control { padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 1rem; outline: none; width: 100%; }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+
+        /* STORED FILES & UPLOAD ZONE */
+        .stored-files-panel { background: var(--bg-color); border: 1px dashed var(--border-color); border-radius: var(--radius-md); padding: 12px; margin-bottom: 16px; width: 100%; }
+        .stored-files-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; max-height: 150px; overflow-y: auto; }
+        .stored-file-item { display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.95rem; gap: 10px; flex-wrap: wrap; }
+        .stored-file-item label { display: flex; align-items: center; gap: 8px; cursor: pointer; word-break: break-all; }
+
+        .upload-box { border: 2px dashed var(--border-color); border-radius: var(--radius-md); padding: 20px 12px; text-align: center; background: var(--bg-color); cursor: pointer; width: 100%; }
+        .upload-box:hover { border-color: var(--primary); }
+        .upload-box i { font-size: 2.5rem; color: var(--primary); margin-bottom: 8px; }
+        .upload-box img.preview-thumbnail { max-width: 100%; max-height: 150px; border-radius: 8px; margin-top: 10px; border: 1px solid var(--border-color); object-fit: contain; }
+       
+        .upload-btns { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+        .btn-upload { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: var(--shadow-sm); }
+        .btn-upload:hover { opacity: 0.9; }
+
+        .file-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .chip { background: var(--card-bg); border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 6px; word-break: break-all; }
+        .chip i.close { cursor: pointer; color: var(--incorrect); }
+
+        /* AI CHECKING & GEMINI */
+        .ai-box { display: none; background: var(--primary-light); border: 1px solid var(--primary); border-radius: var(--radius-md); padding: 16px; margin-top: 16px; width: 100%; }
+        .ai-box textarea { width: 100%; height: 110px; margin-top: 8px; font-size: 0.9rem; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-family: monospace; resize: vertical; }
+
+        .gemini-assistant-bar { background: var(--card-bg); border: 1px solid var(--primary); border-radius: var(--radius-md); padding: 16px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-sm); width: 100%; }
+        .gemini-response-box { background: var(--primary-light); padding: 12px; border-radius: 8px; font-size: 0.95rem; display: none; margin-top: 8px; border-left: 3px solid var(--primary); word-break: break-word; }
+
+        /* QUIZ EXECUTION & PALETTE */
+        .sticky-stats { position: sticky; top: 0; z-index: 10; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px 16px; display: flex; justify-content: space-around; align-items: center; box-shadow: var(--shadow-md); margin-bottom: 20px; gap: 10px; flex-wrap: wrap; width: 100%; }
+        .stat-box { text-align: center; }
+        .stat-box label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); display: block; }
+        .stat-box span { font-size: 1.15rem; font-weight: 800; }
+
+        /* Bảng điều hướng câu hỏi trực quan (Palette) */
+        .question-palette-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; margin-bottom: 20px; width: 100%; box-shadow: var(--shadow-sm); }
+        .palette-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; max-height: 120px; overflow-y: auto; }
+        .palette-btn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); position: relative; }
+        .palette-btn.unanswered { background: var(--incorrect-bg); color: var(--incorrect); border-color: var(--incorrect); } /* Đỏ: Chưa làm */
+        .palette-btn.answered { background: var(--correct-bg); color: var(--correct); border-color: var(--correct); } /* Xanh: Đã làm */
+        .palette-btn.flagged { background: #fef3c7; color: #d97706; border-color: #f59e0b; } /* Vàng: Đánh dấu xem lại */
+        .palette-btn:hover { transform: scale(1.1); }
+
+        .question-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; width: 100%; box-shadow: var(--shadow-sm); position: relative; }
+        .q-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 12px; display: flex; gap: 8px; align-items: flex-start; word-break: break-word; justify-content: space-between; }
+        .q-title-left { display: flex; gap: 8px; align-items: flex-start; flex: 1; }
+        .q-badge { background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 6px; font-size: 0.85rem; height: fit-content; flex-shrink: 0; border: 1px solid var(--border-color); }
+        
+        .btn-flag { background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 8px; cursor: pointer; color: var(--text-muted); font-size: 0.85rem; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-flag.active { background: #fef3c7; color: #d97706; border-color: #f59e0b; font-weight: 700; }
+
+        .q-image-container { margin: 12px 0; text-align: center; }
+        .q-image-container img { max-width: 100%; max-height: 300px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; transition: transform 0.2s; }
+        .q-image-container img:hover { transform: scale(1.02); }
+
+        .opt-list { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+        .opt-item { border: 1px solid var(--border-color); padding: 10px 14px; border-radius: var(--radius-md); cursor: pointer; display: flex; align-items: flex-start; gap: 10px; font-size: 1rem; word-break: break-word; background: var(--card-bg); }
+        .opt-item:hover { background: var(--option-hover); border-color: var(--primary); }
+        .opt-letter { width: 24px; height: 24px; border-radius: 50%; background: var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
+       
+        .opt-item.correct { background: var(--correct-bg) !important; border-color: var(--correct) !important; font-weight: 700; color: var(--text-main); }
+        .opt-item.correct .opt-letter { background: var(--correct); color: white; }
+        .opt-item.incorrect { background: var(--incorrect-bg) !important; border-color: var(--incorrect) !important; color: var(--text-main); }
+        .opt-item.incorrect .opt-letter { background: var(--incorrect); color: white; }
+        .opt-item.selected { border-color: var(--primary); background: var(--primary-light); font-weight: 700; }
+
+        .explanation { display: none; margin-top: 12px; padding: 10px 14px; background: var(--explanation-bg); border-left: 3px solid var(--explanation-border); font-size: 0.95rem; border-radius: 4px; word-break: break-word; }
+        
+        .explanation-media-box { margin-top: 8px; display: flex; flex-direction: column; gap: 8px; }
+        .explanation-media-box img { max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); }
+        .comment-section { margin-top: 12px; border-top: 1px dashed var(--border-color); padding-top: 10px; }
+        .comment-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; max-height: 120px; overflow-y: auto; }
+        .comment-item { background: var(--bg-color); padding: 6px 10px; border-radius: 6px; font-size: 0.9rem; border: 1px solid var(--border-color); }
+        .comment-input-group { display: flex; gap: 6px; }
+
+        .btn-main { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 30px; font-size: 1rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center; box-shadow: var(--shadow-sm); }
+        .btn-main:hover { opacity: 0.9; }
+
+        .history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; width: 100%; }
+        .history-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; display: flex; flex-direction: column; justify-content: space-between; word-break: break-word; box-shadow: var(--shadow-sm); position: relative; }
+
+        /* Zoom Modal cho hình ảnh sắc nét */
+        #img-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
+        #img-modal img { max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media(max-width: 992px) {
+            aside.sidebar { transform: translateX(-100%); }
+            aside.sidebar.mobile-open { transform: translateX(0); }
+            main.content { margin-left: 0; width: 100%; padding: 16px; }
+            .mobile-menu-toggle { display: flex; }
+            .mobile-close-btn { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Modal Phóng to hình ảnh -->
+    <div id="img-modal" onclick="this.style.display='none'"><img id="modal-img" src="" alt="Zoom Image"></div>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar" id="app-sidebar">
+        <div class="brand-logo">
+            <div>
+                <i class="fa-solid fa-graduation-cap"></i>
+                <span>FPT Study Hub</span>
+            </div>
+            <button class="mobile-close-btn" onclick="toggleMobileSidebar()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="menu-group">
+            <div class="menu-title">Khám Phá & Giới Thiệu</div>
+            <a class="menu-item active" onclick="switchTab('intro-tab', this)">
+                <i class="fa-solid fa-circle-info"></i> Giới Thiệu Hệ Thống
+            </a>
+        </div>
+
+        <div class="menu-group">
+            <div class="menu-title">Chức Năng Chính</div>
+            <a class="menu-item" onclick="switchTab('create-tab', this)">
+                <i class="fa-solid fa-plus-circle"></i> Tạo Đề Thi
+            </a>
+            <a class="menu-item" onclick="switchTab('flashcard-tab', this)">
+                <i class="fa-solid fa-clone"></i> Ôn Tập Flashcard
+            </a>
+            <a class="menu-item" onclick="switchTab('mistake-tab', this)">
+                <i class="fa-solid fa-book-bookmark"></i> Sổ Tay Câu Hỏi Sai
+            </a>
+            <a class="menu-item" onclick="switchTab('roadmap-tab', this)">
+                <i class="fa-solid fa-route"></i> Lộ Trình Học Cá Nhân
+            </a>
+            <a class="menu-item" onclick="switchTab('manage-subjects-tab', this)">
+                <i class="fa-solid fa-folder-open"></i> Kho Môn Học & File
+            </a>
+            <a class="menu-item" onclick="switchTab('quiz-tab', this)">
+                <i class="fa-solid fa-pen-to-square"></i> Làm Bài
+            </a>
+            <a class="menu-item" onclick="switchTab('history-tab', this)">
+                <i class="fa-solid fa-box-archive"></i> Kho Lịch Sử
+            </a>
+        </div>
+
+        <div class="menu-group">
+            <div class="menu-title">
+                <span>Danh Mục Môn Học</span>
+            </div>
+            <div class="subject-list" id="sidebar-subject-list"></div>
+            <button class="btn-add-subject" onclick="addNewSubjectPrompt()"><i class="fa-solid fa-plus"></i> Thêm Môn Học Mới</button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="content">
+        <div class="header-bar">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()"><i class="fa-solid fa-bars"></i></button>
+                <div class="header-title">
+                    <h2 id="page-heading">Giới Thiệu FPT Study Hub</h2>
+                    <p>Nền tảng hỗ trợ sinh viên tối ưu hóa quy trình ôn tập trắc nghiệm, quản lý tài liệu và ghi nhớ kiến thức hiệu quả</p>
+                </div>
+            </div>
+            <div class="top-actions">
+                <div class="zoom-control-group" title="Phóng to / Thu nhỏ trang web">
+                    <button onclick="adjustZoom(-0.1)"><i class="fa-solid fa-minus"></i></button>
+                    <span id="zoom-level-display">100%</span>
+                    <button onclick="adjustZoom(0.1)"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <button class="btn-theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Đổi Chế Độ Sáng/Tối">
+                    <i class="fa-solid fa-moon" id="theme-icon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB GIỚI THIỆU -->
+        <div id="intro-tab" class="tab-content active">
+            <div class="intro-section" style="margin-bottom: 0;">
+                <h3 style="color: var(--primary); display: flex; align-items: center; gap: 8px; font-size: 1.2rem;">
+                    <i class="fa-solid fa-circle-info"></i> Chào mừng bạn đã đến với FPT Study Hub & Smart Exam Suite
+                </h3>
+                <p style="font-size: 1rem; color: var(--text-muted); margin-top: 8px; line-height: 1.6;">
+                    Nền tảng được thiết kế dành riêng cho sinh viên FPT nhằm hỗ trợ trích xuất, phân tích và tự động tạo đề thi, flashcard từ tài liệu học tập cá nhân, hỗ trợ công thức MathJax/LaTeX sắc nét.
+                </p>
+                <div class="intro-grid">
+                    <div class="intro-card">
+                        <h4><i class="fa-solid fa-star"></i> Lợi Ích Vượt Trội</h4>
+                        <ul>
+                            <li>Trích xuất văn bản cực chuẩn từ PDF, văn bản và hình ảnh (Tích hợp Tesseract OCR).</li>
+                            <li>Tích hợp <b>Sổ tay câu hỏi sai</b> tự động tổng hợp câu trả lời chưa chính xác.</li>
+                            <li><b>Lộ trình học cá nhân hóa</b> dựa theo lịch sử và năng lực thực tế.</li>
+                            <li>Tự động lưu tiến độ (Auto-save) và điều hướng trực quan.</li>
+                        </ul>
+                    </div>
+                    <div class="intro-card">
+                        <h4><i class="fa-solid fa-triangle-exclamation"></i> Hạn Chế Riêng</h4>
+                        <ul>
+                            <li>Tốc độ quét OCR ảnh/PDF phụ thuộc vào chất lượng hình ảnh đầu vào.</li>
+                            <li>Dữ liệu lưu trữ tập trung trên trình duyệt cá nhân.</li>
+                        </ul>
+                    </div>
+                    <div class="intro-card">
+                        <h4><i class="fa-solid fa-comments"></i> Mong Mọi Người Góp Ý</h4>
+                        <ul>
+                            <li>Mọi phản hồi, báo lỗi hay ý tưởng tính năng mới xin hãy chia sẻ để FPT Study Hub ngày càng hữu ích hơn!</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 1: TẠO ĐỀ THI -->
+        <div id="create-tab" class="tab-content">
+            <div class="card">
+                <div class="card-title"><span><i class="fa-solid fa-sliders"></i> Cấu Hình Đề Thi</span></div>
+               
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Chọn Môn Học <span style="color:var(--incorrect);">*</span></label>
+                        <select id="cfg-subject-select" class="form-control" style="font-weight:600;" onchange="onSubjectChangeInCreateTab(this.value)"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tên Bộ Đề</label>
+                        <input type="text" id="cfg-title" class="form-control" placeholder="VD: Progress Test 1">
+                    </div>
+                    <div class="form-group">
+                        <label>Ngôn Ngữ Câu Hỏi <span style="color:var(--incorrect);">*</span></label>
+                        <select id="cfg-language" class="form-control" required style="font-weight: 600;">
+                            <option value="Tiếng Việt" selected>🇻🇳 Tiếng Việt</option>
+                            <option value="Tiếng Anh">🇬🇧 Tiếng Anh (English)</option>
+                            <option value="Tiếng Nhật">🇯🇵 Tiếng Nhật (日本語)</option>
+                            <option value="Tiếng Trung">🇨🇳 Tiếng Trung (中文)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Chế Độ Làm Bài <span style="color:var(--incorrect);">*</span></label>
+                        <select id="cfg-mode" class="form-control" style="font-weight: 600;">
+                            <option value="instant">⚡ Chọn xong hiện đúng/sai luôn</option>
+                            <option value="submit">📝 Nộp bài mới hiện đúng/sai</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Thời Gian (Phút)</label>
+                        <input type="number" id="cfg-time" class="form-control" value="15" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Số Câu Trích Xuất</label>
+                        <input type="number" id="cfg-count" class="form-control" value="10" min="1">
+                    </div>
+                </div>
+
+                <div class="stored-files-panel" id="stored-files-section">
+                    <div style="font-size: 0.95rem; font-weight: 700; color: var(--primary);">
+                        <i class="fa-solid fa-database"></i> File sẵn có trong môn học này (Tự động nhúng để tạo đề):
+                    </div>
+                    <div class="stored-files-list" id="stored-files-checkboxes"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Tải Thêm File/Folder Mới Hoặc Hình Ảnh Đề Thi (Tùy Chọn)</label>
+                    <div class="upload-box" onclick="document.getElementById('file-input').click()">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <p style="font-weight: 700; font-size: 0.95rem;">Kéo & thả file bổ sung hoặc tải ảnh đề thi vào đây</p>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">.txt, .pdf, .docx, .doc, .jpg, .png, .json</span>
+                        <div class="upload-btns" onclick="event.stopPropagation()">
+                            <button class="btn-upload" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-file"></i> Chọn File/Ảnh</button>
+                            <button class="btn-upload" style="background:#475569;" onclick="document.getElementById('folder-input').click()"><i class="fa-solid fa-folder"></i> Chọn Folder</button>
+                        </div>
+                    </div>
+                    <input type="file" id="file-input" multiple style="display:none" onchange="handleFilesSelected(this.files, 'exam')">
+                    <input type="file" id="folder-input" webkitdirectory directory multiple style="display:none" onchange="handleFilesSelected(this.files, 'exam')">
+                    <div class="file-chips" id="file-chip-container"></div>
+                </div>
+
+                <div id="loading-spinner" style="display:none; text-align:center; padding: 10px; color: var(--primary); font-weight:700;">
+                    <i class="fa-solid fa-spinner fa-spin"></i> Đang trích xuất văn bản & OCR hình ảnh với độ nét cao... Vui lòng đợi!
+                </div>
+
+                <button class="btn-main" style="margin-top: 16px;" onclick="generateExam()"><i class="fa-solid fa-wand-magic-sparkles"></i> Phân Tích & Tạo Bài Thi Hỗ Trợ AI</button>
+
+                <div class="ai-box" id="ai-fallback-box">
+                    <div style="font-weight: 800; color: var(--primary); font-size: 0.95rem;"><i class="fa-solid fa-robot"></i> AI Checking & Validation Prompt (Exam):</div>
+                    <p style="font-size: 0.9rem; margin-top:4px;">Copy đoạn Prompt chuyên sâu dưới đây dán vào ChatGPT/Gemini để AI tự kiểm tra, rà soát đáp án:</p>
+                    <textarea id="ai-prompt-text" readonly onclick="this.select()"></textarea>
+                    <button class="btn-upload" style="margin-top: 6px;" onclick="copyAiPrompt('ai-prompt-text')"><i class="fa-solid fa-copy"></i> Sao Chép AI Checking Prompt</button>
+                    <hr style="margin: 12px 0; border:0; border-top:1px dashed var(--border-color);">
+                    <label style="font-size: 0.9rem; font-weight: 700;">Dán toàn bộ kết quả JSON đã kiểm tra từ AI vào đây (Hỗ trợ công thức LaTeX):</label>
+                    <textarea id="ai-json-input" placeholder='Dán toàn bộ kết quả JSON chuẩn hóa của AI vào đây...' style="height: 80px; margin-top:4px; font-family: monospace;"></textarea>
+                    <button class="btn-main" style="margin-top: 8px; background: var(--correct);" onclick="importAiJson()"><i class="fa-solid fa-file-import"></i> Nhập Đề Đã Kiểm Tra & Bắt Đầu</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: FLASHCARD ÔN TẬP -->
+        <div id="flashcard-tab" class="tab-content">
+            <div class="card" style="margin-bottom: 24px; border-bottom: 4px solid var(--primary);">
+                <div class="card-title"><span><i class="fa-solid fa-gears"></i> Cấu Hình Trích Xuất Flashcard Tự Động</span></div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Chọn Môn Học <span style="color:var(--incorrect);">*</span></label>
+                        <select id="fc-subject-select" class="form-control" style="font-weight:600;" onchange="onSubjectChangeInFlashcardTab(this.value)"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Số Thẻ Muốn Tạo</label>
+                        <input type="number" id="fc-count" class="form-control" value="15" min="1">
+                    </div>
+                </div>
+
+                <div class="stored-files-panel">
+                    <div style="font-size: 0.95rem; font-weight: 700; color: var(--primary);">
+                        <i class="fa-solid fa-database"></i> File sẵn có trong môn học này (Để trích xuất Flashcard):
+                    </div>
+                    <div class="stored-files-list" id="fc-stored-files-checkboxes"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Tải Thêm File Tài Liệu Mới (Tùy chọn):</label>
+                    <div class="upload-box" onclick="document.getElementById('fc-file-input').click()">
+                        <i class="fa-solid fa-file-arrow-up"></i>
+                        <p style="font-weight: 700; font-size: 0.95rem;">Kéo thả tài liệu để AI bóc tách Flashcard</p>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">PDF, DOCX, TXT, Hình ảnh (OCR)</span>
+                        <div class="upload-btns" onclick="event.stopPropagation()">
+                            <button class="btn-upload" onclick="document.getElementById('fc-file-input').click()"><i class="fa-solid fa-file-circle-plus"></i> Chọn File</button>
+                        </div>
+                    </div>
+                    <input type="file" id="fc-file-input" multiple style="display:none" onchange="handleFilesSelected(this.files, 'fc')">
+                    <div class="file-chips" id="fc-file-chip-container"></div>
+                </div>
+
+                <div id="fc-loading-spinner" style="display:none; text-align:center; padding: 10px; color: var(--primary); font-weight:700;">
+                    <i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý tài liệu cho Flashcard...
+                </div>
+
+                <button class="btn-main" style="margin-top: 16px; background: #475569;" onclick="generateFlashcardFromAI()"><i class="fa-solid fa-microchip"></i> Phân Tích & Tạo Flashcard Với AI</button>
+
+                <div class="ai-box" id="fc-ai-fallback-box">
+                    <div style="font-weight: 800; color: var(--primary); font-size: 0.95rem;"><i class="fa-solid fa-robot"></i> AI Checking & Validation Prompt (Flashcard):</div>
+                    <textarea id="fc-ai-prompt-text" readonly onclick="this.select()"></textarea>
+                    <button class="btn-upload" style="margin-top: 6px;" onclick="copyAiPrompt('fc-ai-prompt-text')"><i class="fa-solid fa-copy"></i> Sao Chép Flashcard Prompt</button>
+                    <hr style="margin: 12px 0; border:0; border-top:1px dashed var(--border-color);">
+                    <label style="font-size: 0.9rem; font-weight: 700;">Dán JSON Flashcard từ AI vào đây:</label>
+                    <textarea id="fc-ai-json-input" placeholder='[{"q": "Câu hỏi", "a": "Đáp án"}, ...]' style="height: 80px; margin-top:4px; font-family: monospace;"></textarea>
+                    <button class="btn-main" style="margin-top: 8px; background: var(--correct);" onclick="importFlashcardJson()"><i class="fa-solid fa-check-double"></i> Cập Nhật Bộ Thẻ Ghi Nhớ</button>
+                </div>
+            </div>
+
+            <!-- HIỂN THỊ FLASHCARD -->
+            <div class="card">
+                <div class="card-title"><span><i class="fa-solid fa-clone"></i> Thẻ Ghi Nhớ Kiến Thức (Flashcard View)</span></div>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="flipFlashcard()">
+                        <div class="flashcard-inner" id="flashcard-display">Đang tải thẻ ghi nhớ...</div>
+                    </div>
+                    <div class="flashcard-controls">
+                        <button class="btn-upload" style="background: var(--text-muted);" onclick="prevFlashcard()"><i class="fa-solid fa-arrow-left"></i> Thẻ Trước</button>
+                        <button class="btn-upload" onclick="nextFlashcard()">Thẻ Tiếp <i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 10px; font-size: 0.95rem; color: var(--text-muted);">
+                    Mẹo: Click vào thẻ để lật giữa Câu hỏi và Giải thích.
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB SỔ TAY CÂU HỎI SAI -->
+        <div id="mistake-tab" class="tab-content">
+            <div class="card">
+                <div class="card-title">
+                    <span><i class="fa-solid fa-book-bookmark"></i> Sổ Tay Câu Hỏi Sai (Mistake Notebook)</span>
+                    <button class="btn-upload" style="background: var(--incorrect);" onclick="clearMistakes()"><i class="fa-solid fa-trash-can"></i> Xóa Sổ Tay</button>
+                </div>
+                <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 16px;">
+                    Hệ thống tự động tổng hợp những câu hỏi bạn đã làm sai trong các bài kiểm tra để ôn tập chuyên sâu.
+                </p>
+                <div id="mistake-list-container" style="display: flex; flex-direction: column; gap: 16px;"></div>
+            </div>
+        </div>
+
+        <!-- TAB LỘ TRÌNH HỌC CÁ NHÂN HÓA -->
+        <div id="roadmap-tab" class="tab-content">
+            <div class="card">
+                <div class="card-title"><span><i class="fa-solid fa-route"></i> Lộ Trình Học Cá Nhân Hóa (Smart Learning Roadmap)</span></div>
+                <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 16px;">
+                    Đề xuất các bài tập, ôn tập kiến thức trọng tâm dựa trên lịch sử làm bài và năng lực thực tế của bạn.
+                </p>
+                <div id="roadmap-content" style="display: flex; flex-direction: column; gap: 16px;"></div>
+            </div>
+        </div>
+
+        <!-- TAB QUẢN LÝ MÔN HỌC & FILE SẴN CÓ -->
+        <div id="manage-subjects-tab" class="tab-content">
+            <div class="card">
+                <div class="card-title">
+                    <span><i class="fa-solid fa-folder-open"></i> Quản Lý Môn Học & Tài Liệu Sẵn Có</span>
+                    <button class="btn-upload" onclick="addNewSubjectPrompt()"><i class="fa-solid fa-plus"></i> Thêm Môn Mới</button>
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>Chọn Môn Để Quản Lý File:</label>
+                    <select id="manage-subject-select" class="form-control" onchange="renderSubjectFileManager(this.value)"></select>
+                </div>
+
+                <div class="stored-files-panel" style="padding: 20px; background: var(--card-bg);">
+                    <h4 style="margin-bottom: 8px; font-size:1.05rem;" id="current-manage-subject-title">Danh Sách File Đã Lưu</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">Các file và ảnh tải lên đây sẽ được lưu trữ lâu dài bằng cơ sở dữ liệu IndexedDB của trình duyệt.</p>
+                   
+                    <div style="margin-bottom: 16px;">
+                        <input type="file" id="perm-file-input" multiple style="display:none" onchange="uploadPermanentFiles(this.files)">
+                        <button class="btn-upload" onclick="document.getElementById('perm-file-input').click()"><i class="fa-solid fa-upload"></i> Upload & Lưu File Vào Môn Này</button>
+                    </div>
+
+                    <div id="permanent-files-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: LÀM BÀI (Tích hợp Auto-save, Bảng màu chuyển câu, Bookmark & MathJax) -->
+        <div id="quiz-tab" class="tab-content">
+            <div id="quiz-active-wrapper" style="display:none;">
+                <div class="gemini-assistant-bar">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                        <span style="font-weight: 700; color: var(--primary); font-size: 0.95rem;"><i class="fa-solid fa-wand-magic-sparkles"></i> Trợ Lý AI Gemini</span>
+                        <input type="password" id="gemini-api-key" class="form-control" placeholder="Nhập khóa Gemini API Key của bạn (tùy chọn)" style="max-width: 260px; font-size: 0.9rem; padding: 6px 10px;">
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <input type="text" id="gemini-question-input" class="form-control" placeholder="Nhập câu hỏi hoặc yêu cầu trợ lý AI giải thích..." style="flex: 1; min-width: 200px;">
+                        <button class="btn-upload" onclick="askGeminiAssistant()"><i class="fa-solid fa-paper-plane"></i> Hỏi AI</button>
+                    </div>
+                    <div id="gemini-response" class="gemini-response-box"></div>
+                </div>
+
+                <div class="sticky-stats">
+                    <div class="stat-box"><label>THỜI GIAN</label><span id="timer-display" style="color:var(--incorrect);">15:00</span></div>
+                    <div class="stat-box"><label>TIẾN ĐỘ</label><span id="progress-display">0/0</span></div>
+                    <div class="stat-box"><label>ĐÚNG</label><span id="correct-display" style="color:var(--correct);">0</span></div>
+                    <div class="stat-box"><label>SAI</label><span id="incorrect-display" style="color:var(--incorrect);">0</span></div>
+                </div>
+
+                <!-- Bảng điều hướng câu hỏi trực quan (Bảng màu) -->
+                <div class="question-palette-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                        <span style="font-weight: 800; font-size: 0.95rem; color: var(--primary);"><i class="fa-solid fa-palette"></i> Bảng Điều Hướng Câu Hỏi</span>
+                        <div style="display: flex; gap: 12px; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); align-items: center;">
+                            <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:12px; height:12px; background:var(--correct-bg); border:1px solid var(--correct); border-radius:3px;"></span> Đã làm</span>
+                            <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:12px; height:12px; background:var(--incorrect-bg); border:1px solid var(--incorrect); border-radius:3px;"></span> Chưa làm</span>
+                            <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:12px; height:12px; background:#fef3c7; border:1px solid #f59e0b; border-radius:3px;"></span> Đánh dấu</span>
+                        </div>
+                    </div>
+                    <div class="palette-grid" id="question-palette-container"></div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+                    <button class="btn-upload" style="background: var(--primary);" onclick="shuffleCurrentExam()"><i class="fa-solid fa-shuffle"></i> Trộn Đề (Shuffle)</button>
+                </div>
+
+                <div id="questions-container"></div>
+
+                <button class="btn-main" id="submit-quiz-btn" style="margin-top: 20px;" onclick="submitQuiz()">
+                    <i class="fa-solid fa-paper-plane"></i> Nộp Bài Thi & Xem Điểm
+                </button>
+            </div>
+
+            <div id="quiz-empty-wrapper" style="text-align: center; padding: 60px 20px; color: var(--text-muted);">
+                <i class="fa-solid fa-file-circle-question" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 12px;"></i>
+                <h3>Chưa có bài thi nào đang chạy</h3>
+                <p style="font-size: 0.95rem;">Hãy chuyển sang tab "Tạo Đề Thi" hoặc chọn ôn tập từ "Kho Lịch Sử".</p>
+            </div>
+        </div>
+
+        <!-- TAB 4: LỊCH SỬ -->
+        <div id="history-tab" class="tab-content">
+            <div class="card">
+                <div class="card-title">
+                    <span><i class="fa-solid fa-clock-rotate-left"></i> Lịch Sử Đề Thi Đã Lưu</span>
+                    <button class="btn-upload" style="background: var(--incorrect);" onclick="clearAllHistory()"><i class="fa-solid fa-trash-can"></i> Xóa Tất Cả Lịch Sử</button>
+                </div>
+                <div class="history-grid" id="history-container"></div>
+            </div>
+        </div>
+    </main>
+
+<script>
+    /* ================= ZOOM UI ================= */
+    let currentZoom = parseFloat(localStorage.getItem('fpt_zoom_level') || '1.0');
+
+    function applyZoom() {
+        if (currentZoom < 0.7) currentZoom = 0.7;
+        if (currentZoom > 1.5) currentZoom = 1.5;
+        document.documentElement.style.setProperty('--zoom-scale', currentZoom);
+        document.getElementById('zoom-level-display').innerText = Math.round(currentZoom * 100) + '%';
+        localStorage.setItem('fpt_zoom_level', currentZoom);
+    }
+
+    function adjustZoom(delta) {
+        currentZoom = Math.round((currentZoom + delta) * 10) / 10;
+        applyZoom();
+    }
+
+    function openImageModal(src) {
+        document.getElementById('modal-img').src = src;
+        document.getElementById('img-modal').style.display = 'flex';
+    }
+
+    /* ================= INDEXED DB ================= */
+    let db = null;
+    function initDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open('FPTStudyHubDB', 1);
+            request.onupgradeneeded = (e) => {
+                let database = e.target.result;
+                if (!database.objectStoreNames.contains('subject_files')) {
+                    database.createObjectStore('subject_files', { keyPath: 'id' });
+                }
+            };
+            request.onsuccess = (e) => {
+                db = e.target.result;
+                resolve(db);
+            };
+            request.onerror = (e) => reject(e);
+        });
+    }
+
+    function saveFileToDB(subjectCode, fileName, fileText) {
+        return new Promise((resolve) => {
+            const tx = db.transaction('subject_files', 'readwrite');
+            const store = tx.objectStore('subject_files');
+            const id = `${subjectCode}_${fileName}`;
+            store.put({ id, subjectCode, fileName, content: fileText, date: new Date().toLocaleDateString('vi-VN') });
+            tx.oncomplete = () => resolve();
+        });
+    }
+
+    function getFilesBySubjectFromDB(subjectCode) {
+        return new Promise((resolve) => {
+            if (!db) { resolve([]); return; }
+            const tx = db.transaction('subject_files', 'readonly');
+            const store = tx.objectStore('subject_files');
+            const req = store.getAll();
+            req.onsuccess = () => {
+                const results = req.result.filter(item => item.subjectCode === subjectCode);
+                resolve(results);
+            };
+        });
+    }
+
+    function deleteFileFromDB(id) {
+        return new Promise((resolve) => {
+            const tx = db.transaction('subject_files', 'readwrite');
+            const store = tx.objectStore('subject_files');
+            store.delete(id);
+            tx.oncomplete = () => resolve();
+        });
+    }
+
+    /* ================= STATE ================= */
+    let subjects = JSON.parse(localStorage.getItem('fpt_subjects') || JSON.stringify(["SSA101", "PRF192", "CEA201", "CSD201", "DBI201"]));
+    let uploadedFiles = [];
+    let uploadedFlashcardFiles = [];
+    let currentExam = null;
+    let questionsList = [];
+    let timerInterval = null;
+    let timeRemaining = 0;
+    let correctCount = 0;
+    let incorrectCount = 0;
+    let answeredSet = new Set();
+    let flaggedSet = new Set();
+    let selectedSubjectFilter = 'ALL';
+    let userAnswers = {};
+
+    let flashcardList = JSON.parse(localStorage.getItem('fpt_flashcards') || JSON.stringify([
+        { q: "FPT Study Hub hỗ trợ những định dạng file tài liệu nào?", a: "Hỗ trợ định dạng PDF, văn bản txt/code, Word (.docx) và các loại hình ảnh (jpg, png) qua công nghệ Tesseract OCR sắc nét." },
+        { q: "Làm cách nào để lưu trữ tài liệu lâu dài không cần tải lại nhiều lần?", a: "Sử dụng tính năng 'Kho Môn Học & File', file sẽ được lưu an toàn vào cơ sở dữ liệu IndexedDB của trình duyệt." },
+        { q: "Chế độ làm bài thi tức thời (Instant) có đặc điểm gì?", a: "Hệ thống sẽ hiển thị ngay đáp án đúng/sai và lời giải thích ngay khi bạn vừa click chọn một đáp án." }
+    ]));
+    let currentFlashcardIdx = 0;
+    let isFlashcardFlipped = false;
+
+    let mistakeNotebook = JSON.parse(localStorage.getItem('fpt_mistakes') || '[]');
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        applyZoom();
+        await initDB();
+        renderSubjectListUI();
+        renderFlashcard();
+        renderMistakes();
+        renderRoadmap();
+        
+        const savedTheme = localStorage.getItem('fpt_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+
+        if (subjects.length > 0) {
+            onSubjectChangeInCreateTab(subjects[0]);
+            onSubjectChangeInFlashcardTab(subjects[0]);
+        }
+
+        // Tự động khôi phục tiến độ (Auto-save restoration) nếu có phiên thi dở dang
+        checkForAutoSaveProgress();
+    });
+
+    function toggleMobileSidebar() {
+        document.getElementById('app-sidebar').classList.toggle('mobile-open');
+    }
+
+    function renderSubjectListUI() {
+        localStorage.setItem('fpt_subjects', JSON.stringify(subjects));
+
+        const sidebarList = document.getElementById('sidebar-subject-list');
+        sidebarList.innerHTML = `<div class="subject-chip ${selectedSubjectFilter==='ALL'?'active':''}" onclick="filterSubject('ALL', this)"><span>Tất Cả Môn</span></div>`;
+       
+        subjects.forEach(sub => {
+            const activeClass = selectedSubjectFilter === sub ? 'active' : '';
+            sidebarList.innerHTML += `
+                <div class="subject-chip ${activeClass}" onclick="filterSubject('${sub}', this)">
+                    <span>${sub}</span>
+                    <span class="subject-actions">
+                        <i class="fa-solid fa-pen" title="Đổi tên" onclick="event.stopPropagation(); renameSubject('${sub}')"></i>
+                        <i class="fa-solid fa-trash" title="Xóa môn" onclick="event.stopPropagation(); deleteSubject('${sub}')"></i>
+                    </span>
+                </div>`;
+        });
+
+        const cfgSelect = document.getElementById('cfg-subject-select');
+        const fcSelect = document.getElementById('fc-subject-select');
+        const mngSelect = document.getElementById('manage-subject-select');
+        
+        [cfgSelect, fcSelect, mngSelect].forEach(select => {
+            if (!select) return;
+            const currentVal = select.value;
+            select.innerHTML = subjects.map(s => `<option value="${s}">${s}</option>`).join('');
+            if (subjects.includes(currentVal)) select.value = currentVal;
+        });
+
+        if (subjects.length > 0) {
+            renderSubjectFileManager(mngSelect.value || subjects[0]);
+        }
+    }
+
+    function addNewSubjectPrompt() {
+        const name = prompt("Nhập tên môn học mới (VD: SSA101, MAS291):");
+        if (name && name.trim()) {
+            const cleanName = name.trim().toUpperCase();
+            if (!subjects.includes(cleanName)) {
+                subjects.push(cleanName);
+                renderSubjectListUI();
+                alert(`✅ Đã thêm môn học ${cleanName}`);
+            } else {
+                alert("⚠️ Môn học này đã tồn tại!");
+            }
+        }
+    }
+
+    function renameSubject(oldName) {
+        const newName = prompt(`Nhập tên mới cho môn [${oldName}]:`, oldName);
+        if (newName && newName.trim() && newName.trim().toUpperCase() !== oldName) {
+            const cleanName = newName.trim().toUpperCase();
+            const idx = subjects.indexOf(oldName);
+            if (idx !== -1) {
+                subjects[idx] = cleanName;
+                if (selectedSubjectFilter === oldName) selectedSubjectFilter = cleanName;
+                renderSubjectListUI();
+            }
+        }
+    }
+
+    function deleteSubject(subName) {
+        if (confirm(`Bạn có chắc muốn xóa môn [${subName}]? (Các file của môn này cũng sẽ bị dọn dẹp)`)) {
+            subjects = subjects.filter(s => s !== subName);
+            if (selectedSubjectFilter === subName) selectedSubjectFilter = 'ALL';
+            renderSubjectListUI();
+        }
+    }
+
+    async function onSubjectChangeInCreateTab(subjectCode) {
+        const storedList = await getFilesBySubjectFromDB(subjectCode);
+        const container = document.getElementById('stored-files-checkboxes');
+        renderStoredFilesChecklist(storedList, container, "stored-file-cb");
+    }
+
+    async function onSubjectChangeInFlashcardTab(subjectCode) {
+        const storedList = await getFilesBySubjectFromDB(subjectCode);
+        const container = document.getElementById('fc-stored-files-checkboxes');
+        renderStoredFilesChecklist(storedList, container, "fc-stored-file-cb");
+    }
+
+    function renderStoredFilesChecklist(storedList, container, className) {
+        if (!container) return;
+        if (storedList.length === 0) {
+            container.innerHTML = `<p style="font-size:0.9rem; color:var(--text-muted);">Chưa có file sẵn cho môn này.</p>`;
+        } else {
+            container.innerHTML = storedList.map((item) => `
+                <div class="stored-file-item">
+                    <label>
+                        <input type="checkbox" class="${className}" value="${item.id}" checked>
+                        <span><i class="regular fa-file-code"></i> <b>${item.fileName}</b></span>
+                    </label>
+                </div>
+            `).join('');
+        }
+    }
+
+    async function renderSubjectFileManager(subjectCode) {
+        const titleElem = document.getElementById('current-manage-subject-title');
+        if (titleElem) titleElem.innerText = `Danh Sách File Đã Lưu Cho Môn [${subjectCode}]`;
+        const storedList = await getFilesBySubjectFromDB(subjectCode);
+        const container = document.getElementById('permanent-files-list');
+        if (!container) return;
+
+        if (storedList.length === 0) {
+            container.innerHTML = `<p style="font-size:0.9rem; color:var(--text-muted);">Chưa có tài liệu nào được lưu trong môn này.</p>`;
+            return;
+        }
+
+        container.innerHTML = storedList.map(item => `
+            <div class="stored-file-item">
+                <span><i class="regular fa-file-lines" style="color:var(--primary);"></i> <b>${item.fileName}</b></span>
+                <button class="btn-upload" style="background:var(--incorrect-bg); color:var(--incorrect); padding:4px 10px;" onclick="removePermFile('${item.id}', '${subjectCode}')"><i class="fa-solid fa-trash"></i> Xóa</button>
+            </div>
+        `).join('');
+    }
+
+    async function uploadPermanentFiles(files) {
+        const subjectCode = document.getElementById('manage-subject-select').value;
+        if (!subjectCode) return;
+        for (let file of files) {
+            const text = await extractTextFromFile(file);
+            await saveFileToDB(subjectCode, file.name, text);
+        }
+        alert(`✅ Đã lưu ${files.length} file vào môn [${subjectCode}] thành công!`);
+        renderSubjectFileManager(subjectCode);
+        onSubjectChangeInCreateTab(subjectCode);
+        onSubjectChangeInFlashcardTab(subjectCode);
+    }
+
+    async function removePermFile(id, subjectCode) {
+        await deleteFileFromDB(id);
+        renderSubjectFileManager(subjectCode);
+        onSubjectChangeInCreateTab(subjectCode);
+        onSubjectChangeInFlashcardTab(subjectCode);
+    }
+
+    function switchTab(tabId, element) {
+        document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+        document.querySelectorAll('.menu-item').forEach(mi => mi.classList.remove('active'));
+       
+        document.getElementById(tabId).classList.add('active');
+        if (element) element.classList.add('active');
+        document.getElementById('app-sidebar').classList.remove('mobile-open');
+
+        const headingMap = {
+            'intro-tab': ['Giới Thiệu FPT Study Hub', 'Hệ thống hỗ trợ học tập thông minh'],
+            'create-tab': ['Tạo Đề Trắc Nghiệm Mới', 'Phân tích tài liệu và tạo đề tự động'],
+            'flashcard-tab': ['Ôn Tập Flashcard', 'Tạo thẻ ghi nhớ từ tài liệu và môn học'],
+            'mistake-tab': ['Sổ Tay Câu Hỏi Sai', 'Tổng hợp các câu trả lời chưa chính xác để ôn tập lại'],
+            'roadmap-tab': ['Lộ Trình Học Cá Nhân Hóa', 'Gợi ý bài tập và đề thi sát với năng lực thực tế'],
+            'manage-subjects-tab': ['Kho Môn Học & Tài Liệu', 'Quản lý file lưu trữ dài hạn'],
+            'quiz-tab': ['Làm Bài Thi Trắc Nghiệm', 'Trải nghiệm phòng thi thông minh với Auto-save'],
+            'history-tab': ['Lịch Sử Đề Thi', 'Xem lại các bộ đề đã làm']
+        };
+
+        if (headingMap[tabId]) {
+            document.getElementById('page-heading').innerText = headingMap[tabId][0];
+            document.querySelector('.header-title p').innerText = headingMap[tabId][1];
+        }
+        if (tabId === 'history-tab') renderHistory();
+        if (tabId === 'mistake-tab') renderMistakes();
+        if (tabId === 'roadmap-tab') renderRoadmap();
+    }
+
+    /* ================= CORE PROCESSING (Hỗ trợ Ảnh & OCR) ================= */
+    function handleFilesSelected(files, type) {
+        const targetList = (type === 'exam') ? uploadedFiles : uploadedFlashcardFiles;
+        Array.from(files).forEach(f => {
+            if (!targetList.some(existing => existing.name === f.name)) targetList.push(f);
+        });
+        renderFileChips(type);
+    }
+
+    function removeFile(index, type) {
+        const targetList = (type === 'exam') ? uploadedFiles : uploadedFlashcardFiles;
+        targetList.splice(index, 1);
+        renderFileChips(type);
+    }
+
+    function renderFileChips(type) {
+        const container = document.getElementById(type === 'exam' ? 'file-chip-container' : 'fc-file-chip-container');
+        const targetList = (type === 'exam') ? uploadedFiles : uploadedFlashcardFiles;
+        container.innerHTML = '';
+        targetList.forEach((file, idx) => {
+            container.innerHTML += `<div class="chip"><i class="regular fa-file"></i> ${file.name} <i class="fa-solid fa-xmark close" onclick="removeFile(${idx}, '${type}')"></i></div>`;
+        });
+    }
+
+    async function extractTextFromFile(file) {
+        const ext = file.name.split('.').pop().toLowerCase();
+        let rawText = "";
+
+        if (['jpg', 'jpeg', 'png', 'webp'].includes(ext)) {
+            const worker = await Tesseract.createWorker(['eng', 'vie']);
+            const res = await worker.recognize(file);
+            await worker.terminate();
+            rawText = res.data.text;
+        } else if (ext === 'pdf') {
+            const buffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+            const worker = await Tesseract.createWorker(['eng', 'vie']);
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                let pageText = content.items.map(item => item.str).join(' ');
+                try {
+                    const viewport = page.getViewport({ scale: 2.0 });
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height; canvas.width = viewport.width;
+                    await page.render({ canvasContext: context, viewport: viewport }).promise;
+                    const ocrResult = await worker.recognize(canvas);
+                    if (ocrResult.data.text) pageText += '\n' + ocrResult.data.text;
+                } catch (e) {}
+                rawText += `\n` + pageText;
+            }
+            await worker.terminate();
+        } else {
+            rawText = await file.text();
+        }
+        return rawText.trim();
+    }
+
+    /* ================= FLASHCARD GENERATION ================= */
+    async function generateFlashcardFromAI() {
+        const subject = document.getElementById('fc-subject-select').value;
+        const count = document.getElementById('fc-count').value || 15;
+        const spinner = document.getElementById('fc-loading-spinner');
+        const aiBox = document.getElementById('fc-ai-fallback-box');
+        
+        spinner.style.display = 'block';
+        let fullText = "";
+
+        const checkedBoxes = document.querySelectorAll('.fc-stored-file-cb:checked');
+        const dbFiles = await getFilesBySubjectFromDB(subject);
+        checkedBoxes.forEach(cb => {
+            const found = dbFiles.find(item => item.id === cb.value);
+            if (found) fullText += found.content + "\n";
+        });
+
+        for (let file of uploadedFlashcardFiles) {
+            const text = await extractTextFromFile(file);
+            fullText += text + "\n";
+        }
+
+        spinner.style.display = 'none';
+        if (!fullText.trim()) { alert("⚠️ Vui lòng chọn tài liệu để AI phân tích!"); return; }
+
+        aiBox.style.display = 'block';
+        document.getElementById('fc-ai-prompt-text').value = `[ROLE]: SME môn ${subject}.
+[TASK]: Tạo ${count} bộ Flashcard (Câu hỏi & Giải thích ngắn) từ tài liệu dưới dạng JSON (hỗ trợ định dạng LaTeX nếu có):
+[ {"q": "Câu hỏi/Khái niệm", "a": "Giải thích/Đáp án"} ]
+[DATA]:
+${fullText.slice(0, 7000)}`;
+        
+        alert("🤖 Đã chuẩn bị Prompt. Hãy copy dán vào AI và lấy kết quả JSON dán vào ô bên dưới.");
+    }
+
+    function importFlashcardJson() {
+        try {
+            let raw = document.getElementById('fc-ai-json-input').value.trim();
+            if (!raw) return;
+            raw = raw.replace(/```json/gi, '').replace(/```/g, '');
+            const start = raw.indexOf('['); const end = raw.lastIndexOf(']');
+            if (start !== -1) raw = raw.substring(start, end + 1);
+            
+            const newCards = JSON.parse(raw);
+            if (Array.isArray(newCards)) {
+                flashcardList = newCards;
+                localStorage.setItem('fpt_flashcards', JSON.stringify(flashcardList));
+                currentFlashcardIdx = 0;
+                renderFlashcard();
+                alert("✅ Đã cập nhật bộ thẻ Flashcard thành công!");
+            }
+        } catch(e) { alert("❌ Lỗi JSON: " + e.message); }
+    }
+
+    function renderFlashcard() {
+        const display = document.getElementById('flashcard-display');
+        isFlashcardFlipped = false;
+        if (flashcardList.length === 0) {
+            display.innerText = "Chưa có dữ liệu flashcard."; return;
+        }
+        const card = flashcardList[currentFlashcardIdx];
+        display.innerHTML = `<div style="font-size:0.85rem; color:var(--primary); font-weight:800;">THẺ ${currentFlashcardIdx+1}/${flashcardList.length}</div><div style="margin-top:10px;">${card.q}</div>`;
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    function flipFlashcard() {
+        if (flashcardList.length === 0) return;
+        isFlashcardFlipped = !isFlashcardFlipped;
+        const display = document.getElementById('flashcard-display');
+        const card = flashcardList[currentFlashcardIdx];
+        if (isFlashcardFlipped) {
+            display.innerHTML = `<div style="font-size:0.85rem; color:var(--correct); font-weight:800;">GIẢI THÍCH / ĐÁP ÁN</div><div style="margin-top:10px;">${card.a}</div>`;
+        } else {
+            renderFlashcard();
+        }
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    function nextFlashcard() { 
+        currentFlashcardIdx = (currentFlashcardIdx + 1) % flashcardList.length; 
+        renderFlashcard(); 
+    }
+    function prevFlashcard() { 
+        currentFlashcardIdx = (currentFlashcardIdx - 1 + flashcardList.length) % flashcardList.length; 
+        renderFlashcard(); 
+    }
+
+    /* ================= SỔ TAY CÂU HỎI SAI & THẢO LUẬN ================= */
+    function addMistake(qData) {
+        if (!mistakeNotebook.some(m => m.q === qData.q)) {
+            if (!qData.comments) qData.comments = ["Chào mừng bạn đến phần thảo luận câu hỏi này!"];
+            mistakeNotebook.push(qData);
+            localStorage.setItem('fpt_mistakes', JSON.stringify(mistakeNotebook));
+        }
+    }
+
+    function renderMistakes() {
+        const container = document.getElementById('mistake-list-container');
+        if (!container) return;
+        if (mistakeNotebook.length === 0) {
+            container.innerHTML = `<p style="font-size:0.95rem; color:var(--text-muted);">🎉 Sổ tay đang trống! Bạn chưa trả lời sai câu hỏi nào.</p>`;
+            return;
+        }
+        container.innerHTML = mistakeNotebook.map((m, idx) => `
+            <div class="question-card">
+                <div class="q-title"><div class="q-title-left"><span class="q-badge" style="background:var(--incorrect-bg); color:var(--incorrect);">Sai #${idx+1}</span> <span>${m.q}</span></div></div>
+                ${m.mediaUrl ? `<div class="q-image-container"><img src="${m.mediaUrl}" alt="Question Image" onclick="openImageModal('${m.mediaUrl}')"></div>` : ''}
+                <div class="opt-list">
+                    ${m.options.map((opt, oIdx) => `
+                        <div class="opt-item ${oIdx === m.answer ? 'correct' : ''}">
+                            <span class="opt-letter">${String.fromCharCode(65+oIdx)}</span> ${opt}
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="explanation" style="display:block; margin-top:12px;">
+                    <strong>💡 Lời giải chi tiết:</strong> ${m.explanation}
+                    
+                    <div class="comment-section">
+                        <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 6px;"><i class="fa-solid fa-comments"></i> Thảo luận & Trao đổi:</div>
+                        <div class="comment-list" id="comment-list-${idx}">
+                            ${m.comments.map(c => `<div class="comment-item">${c}</div>`).join('')}
+                        </div>
+                        <div class="comment-input-group">
+                            <input type="text" class="form-control" id="comment-input-${idx}" placeholder="Viết bình luận hoặc thắc mắc của bạn..." style="font-size:0.9rem; padding:6px 10px;">
+                            <button class="btn-upload" style="padding:6px 12px;" onclick="postComment(${idx})">Gửi</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    function postComment(idx) {
+        const input = document.getElementById(`comment-input-${idx}`);
+        const val = input.value.trim();
+        if (!val) return;
+        if (!mistakeNotebook[idx].comments) mistakeNotebook[idx].comments = [];
+        mistakeNotebook[idx].comments.push("Học sinh: " + val);
+        localStorage.setItem('fpt_mistakes', JSON.stringify(mistakeNotebook));
+        renderMistakes();
+    }
+
+    function clearMistakes() {
+        if (confirm("Bạn có chắc chắn muốn xóa sạch Sổ tay câu hỏi sai không?")) {
+            mistakeNotebook = [];
+            localStorage.removeItem('fpt_mistakes');
+            renderMistakes();
+        }
+    }
+
+    /* ================= LỘ TRÌNH HỌC CÁ NHÂN HÓA ================= */
+    function renderRoadmap() {
+        const container = document.getElementById('roadmap-content');
+        if (!container) return;
+
+        let history = JSON.parse(localStorage.getItem('fpt_exam_history') || '[]');
+        let totalExams = history.length;
+        let avgScore = 0;
+        if (totalExams > 0) {
+            let totalCorrect = 0;
+            let totalQ = 0;
+            history.forEach(h => {
+                if (h.score) {
+                    const parts = h.score.split('/');
+                    totalCorrect += parseInt(parts[0]) || 0;
+                    totalQ += parseInt(parts[1]) || 0;
+                }
+            });
+            if (totalQ > 0) avgScore = Math.round((totalCorrect / totalQ) * 100);
+        }
+
+        let levelTitle = "Nhập Môn / Trung Bình";
+        let levelDescription = "Bạn nên ôn tập kỹ các lý thuyết cơ bản và làm thêm tối thiểu 3 bài tập trắc nghiệm cơ bản mỗi ngày.";
+        if (avgScore >= 80) {
+            levelTitle = "Xuất Sắc / Nâng Cao";
+            levelDescription = "Năng lực của bạn rất tốt! Hãy thử thách với các đề thi độ khó cao và các bài toán tổng hợp kiến thức chuyên sâu.";
+        } else if (avgScore >= 50) {
+            levelTitle = "Khá / Ổn Định";
+            levelDescription = "Bạn đã nắm khá tốt kiến thức nền tảng. Hãy tập trung ôn lại các câu hỏi trong 'Sổ tay câu hỏi sai' để tối ưu điểm số.";
+        }
+
+        container.innerHTML = `
+            <div class="intro-card" style="border-left: 4px solid var(--primary);">
+                <h4><i class="fa-solid fa-chart-line"></i> Đánh Giá Năng Lực Hiện Tại</h4>
+                <p style="font-size: 0.95rem; margin-top: 6px;"><b>Trình độ gợi ý:</b> <span style="color:var(--primary);">${levelTitle}</span> (Tỷ lệ đúng trung bình: ${avgScore}%)</p>
+                <p style="font-size: 0.95rem; margin-top: 4px; color:var(--text-muted);">${levelDescription}</p>
+            </div>
+            <div class="intro-card" style="border-left: 4px solid var(--correct);">
+                <h4><i class="fa-solid fa-bullseye"></i> Đề Xuất Bài Tập & Đề Thi Phù Hợp</h4>
+                <ul style="margin-top: 6px;">
+                    <li>Ôn tập ngay <b>${mistakeNotebook.length}</b> câu hỏi đang có trong Sổ tay câu hỏi sai để khắc phục lỗ hổng kiến thức.</li>
+                    <li>Thực hiện tạo bộ đề kiểm tra mới bám sát các môn học trọng tâm của bạn.</li>
+                    <li>Sử dụng tính năng <b>Trợ lý AI Gemini</b> trực tiếp trong phòng thi để được giải thích chi tiết các bài toán khó.</li>
+                </ul>
+            </div>
+        `;
+    }
+
+    /* ================= EXAM GENERATION ================= */
+    async function generateExam() {
+        const subject = document.getElementById('cfg-subject-select').value;
+        const count = document.getElementById('cfg-count').value || 10;
+        const spinner = document.getElementById('loading-spinner');
+        spinner.style.display = 'block';
+
+        let fullText = "";
+        const checkedBoxes = document.querySelectorAll('.stored-file-cb:checked');
+        const dbFiles = await getFilesBySubjectFromDB(subject);
+        checkedBoxes.forEach(cb => {
+            const found = dbFiles.find(item => item.id === cb.value);
+            if (found) fullText += found.content + "\n";
+        });
+        for (let file of uploadedFiles) {
+            const text = await extractTextFromFile(file);
+            fullText += text + "\n";
+        }
+        spinner.style.display = 'none';
+
+        document.getElementById('ai-fallback-box').style.display = 'block';
+        document.getElementById('ai-prompt-text').value = `[ROLE]: SME ${subject}. [TASK]: Tạo ${count} câu hỏi trắc nghiệm dưới dạng JSON (Hỗ trợ công thức LaTeX trong chuỗi): [ {"q": "...", "options": ["A","B","C","D"], "answer": 0, "explanation": "...", "mediaUrl": ""} ]. [DATA]: ${fullText.slice(0, 7000)}`;
+    }
+
+    function copyAiPrompt(id) {
+        navigator.clipboard.writeText(document.getElementById(id).value);
+        alert("📋 Đã sao chép Prompt!");
+    }
+
+    function importAiJson() {
+        try {
+            let raw = document.getElementById('ai-json-input').value.trim();
+            raw = raw.replace(/```json/gi, '').replace(/```/g, '');
+            const start = raw.indexOf('['); const end = raw.lastIndexOf(']');
+            if (start === -1) return;
+            const qs = JSON.parse(raw.substring(start, end + 1));
+            
+            currentExam = {
+                id: 'ex_' + Date.now(),
+                subject: document.getElementById('cfg-subject-select').value,
+                title: document.getElementById('cfg-title').value || "Bài thi tự động",
+                mode: document.getElementById('cfg-mode').value,
+                timeLimit: parseInt(document.getElementById('cfg-time').value) || 15,
+                questions: qs, score: null, date: new Date().toLocaleDateString('vi-VN')
+            };
+            startQuiz(currentExam);
+        } catch(e) { alert("Lỗi JSON: " + e.message); }
+    }
+
+    /* ================= QUIZ ENGINE (Tự động lưu tiến độ, Bảng màu, Bookmark, MathJax) ================= */
+    function startQuiz(exam) {
+        currentExam = exam;
+        questionsList = JSON.parse(JSON.stringify(exam.questions));
+        correctCount = 0; incorrectCount = 0; answeredSet.clear(); flaggedSet.clear(); userAnswers = {};
+        
+        document.getElementById('quiz-empty-wrapper').style.display = 'none';
+        document.getElementById('quiz-active-wrapper').style.display = 'block';
+        
+        renderQuestions();
+        renderQuestionPalette();
+        initTimer(exam.timeLimit);
+        switchTab('quiz-tab');
+    }
+
+    function renderQuestions() {
+        const container = document.getElementById('questions-container');
+        container.innerHTML = questionsList.map((q, idx) => `
+            <div class="question-card" id="qc-${idx}">
+                <div class="q-title">
+                    <div class="q-title-left">
+                        <span class="q-badge">Câu ${idx+1}</span> 
+                        <span>${q.q}</span>
+                    </div>
+                    <button class="btn-flag ${flaggedSet.has(idx)?'active':''}" id="flag-btn-${idx}" onclick="toggleFlag(${idx})">
+                        <i class="fa-solid fa-flag"></i> ${flaggedSet.has(idx)?'Đã cờ':'Đánh dấu'}
+                    </button>
+                </div>
+                ${q.mediaUrl ? `<div class="q-image-container"><img src="${q.mediaUrl}" alt="Đề thi minh họa" onclick="openImageModal('${q.mediaUrl}')"></div>` : ''}
+                <div class="opt-list">
+                    ${q.options.map((opt, oIdx) => `
+                        <div class="opt-item ${userAnswers[idx] === oIdx ? 'selected' : ''}" onclick="selectAnswer(this, ${idx}, ${oIdx})">
+                            <span class="opt-letter">${String.fromCharCode(65+oIdx)}</span> ${opt}
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="explanation" id="exp-${idx}"><strong>💡 Lời giải chi tiết:</strong> ${q.explanation}</div>
+            </div>
+        `).join('');
+
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    function renderQuestionPalette() {
+        const container = document.getElementById('question-palette-container');
+        if (!container) return;
+        container.innerHTML = questionsList.map((q, idx) => {
+            let cssClass = 'unanswered'; // Đỏ: Chưa làm
+            if (answeredSet.has(idx)) cssClass = 'answered'; // Xanh: Đã làm
+            if (flaggedSet.has(idx)) cssClass = 'flagged'; // Vàng: Đánh dấu xem lại
+            return `<button class="palette-btn ${cssClass}" onclick="scrollToQuestion(${idx})" id="palette-btn-${idx}">${idx+1}</button>`;
+        }).join('');
+    }
+
+    function scrollToQuestion(idx) {
+        const elem = document.getElementById(`qc-${idx}`);
+        if (elem) {
+            elem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            elem.style.borderColor = 'var(--primary)';
+            setTimeout(() => elem.style.borderColor = 'var(--border-color)', 1200);
+        }
+    }
+
+    function toggleFlag(idx) {
+        if (flaggedSet.has(idx)) {
+            flaggedSet.delete(idx);
+        } else {
+            flaggedSet.add(idx);
+        }
+        const btn = document.getElementById(`flag-btn-${idx}`);
+        if (flaggedSet.has(idx)) {
+            btn.classList.add('active');
+            btn.innerHTML = `<i class="fa-solid fa-flag"></i> Đã cờ`;
+        } else {
+            btn.classList.remove('active');
+            btn.innerHTML = `<i class="fa-solid fa-flag"></i> Đánh dấu`;
+        }
+        renderQuestionPalette();
+    }
+
+    function selectAnswer(elem, qIdx, selectedOpt) {
+        if (currentExam.mode === 'instant' && answeredSet.has(qIdx)) return;
+        
+        userAnswers[qIdx] = selectedOpt;
+        answeredSet.add(qIdx);
+
+        // Auto-save: Lưu tiến độ thí sinh vào LocalStorage liên tục
+        autoSaveProgress();
+
+        if (currentExam.mode === 'instant') {
+            const correct = questionsList[qIdx].answer;
+            const items = document.getElementById(`qc-${qIdx}`).querySelectorAll('.opt-item');
+            items.forEach((item, i) => {
+                if (i === correct) item.classList.add('correct');
+                item.style.pointerEvents = 'none';
+            });
+            if (selectedOpt === correct) {
+                correctCount++;
+            } else {
+                elem.classList.add('incorrect');
+                incorrectCount++;
+                addMistake(questionsList[qIdx]);
+            }
+            document.getElementById(`exp-${qIdx}`).style.display = 'block';
+        } else {
+            elem.parentNode.querySelectorAll('.opt-item').forEach(i => i.classList.remove('selected'));
+            elem.classList.add('selected');
+        }
+
+        updateProgress();
+        renderQuestionPalette();
+    }
+
+    function autoSaveProgress() {
+        if (!currentExam) return;
+        const saveData = {
+            examId: currentExam.id,
+            userAnswers: userAnswers,
+            timeRemaining: timeRemaining
+        };
+        localStorage.setItem('fpt_autosave_exam', JSON.stringify(saveData));
+    }
+
+    function checkForAutoSaveProgress() {
+        const saved = localStorage.getItem('fpt_autosave_exam');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                // Có thể khôi phục tự động nếu cần hoặc thông báo
+            } catch(e){}
+        }
+    }
+
+    function updateProgress() {
+        document.getElementById('progress-display').innerText = `${answeredSet.size}/${questionsList.length}`;
+        document.getElementById('correct-display').innerText = correctCount;
+        document.getElementById('incorrect-display').innerText = incorrectCount;
+    }
+
+    function initTimer(mins) {
+        clearInterval(timerInterval);
+        timeRemaining = mins * 60;
+        timerInterval = setInterval(() => {
+            const m = Math.floor(timeRemaining / 60); const s = timeRemaining % 60;
+            document.getElementById('timer-display').innerText = `${m}:${s < 10 ? '0'+s : s}`;
+            autoSaveProgress();
+            if (timeRemaining-- <= 0) { clearInterval(timerInterval); submitQuiz(); }
+        }, 1000);
+    }
+
+    function submitQuiz() {
+        clearInterval(timerInterval);
+        localStorage.removeItem('fpt_autosave_exam');
+
+        if (currentExam.mode === 'submit') {
+            correctCount = 0;
+            incorrectCount = 0;
+            questionsList.forEach((q, idx) => {
+                const userChoice = userAnswers[idx];
+                const correct = q.answer;
+                const items = document.getElementById(`qc-${idx}`).querySelectorAll('.opt-item');
+                items.forEach((item, i) => { if (i === correct) item.classList.add('correct'); });
+                if (userChoice === correct) {
+                    correctCount++; 
+                } else {
+                    if (userChoice !== undefined) items[userChoice].classList.add('incorrect');
+                    incorrectCount++;
+                    addMistake(q);
+                }
+                document.getElementById(`exp-${idx}`).style.display = 'block';
+            });
+        }
+        currentExam.score = `${correctCount}/${questionsList.length}`;
+        saveToHistory(currentExam);
+        renderMistakes();
+        alert("Nộp bài thành công! Kết quả: " + currentExam.score);
+    }
+
+    function saveToHistory(exam) {
+        let history = JSON.parse(localStorage.getItem('fpt_exam_history') || '[]');
+        history.unshift(exam);
+        localStorage.setItem('fpt_exam_history', JSON.stringify(history.slice(0, 20)));
+    }
+
+    function renderHistory() {
+        const container = document.getElementById('history-container');
+        let history = JSON.parse(localStorage.getItem('fpt_exam_history') || '[]');
+        
+        if (history.length === 0) {
+            container.innerHTML = `<p style="font-size:0.95rem; color:var(--text-muted); grid-column: 1/-1;">Chưa có lịch sử bài thi nào được lưu.</p>`;
+            return;
+        }
+
+        container.innerHTML = history.map(item => `
+            <div class="history-card">
+                <div>
+                    <span class="q-badge">${item.subject}</span>
+                    <h4 style="margin:8px 0; font-size:1.1rem;">${item.title}</h4>
+                    <div style="font-size:0.85rem; color:var(--text-muted);">${item.date} | Điểm: ${item.score || 'N/A'}</div>
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 12px;">
+                    <button class="btn-upload" style="flex:1;" onclick="reloadExam('${item.id}')"><i class="fa-solid fa-rotate-right"></i> Làm Lại</button>
+                    <button class="btn-upload" style="background: var(--incorrect-bg); color: var(--incorrect); padding: 6px 10px;" onclick="deleteSingleHistory('${item.id}')" title="Xóa bài này"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function deleteSingleHistory(id) {
+        if (confirm("Bạn có chắc chắn muốn xóa bài kiểm tra này khỏi lịch sử không?")) {
+            let history = JSON.parse(localStorage.getItem('fpt_exam_history') || '[]');
+            history = history.filter(item => item.id !== id);
+            localStorage.setItem('fpt_exam_history', JSON.stringify(history));
+            renderHistory();
+        }
+    }
+
+    function clearAllHistory() {
+        if (confirm("⚠️ Cảnh báo: Thao tác này sẽ xóa sạch toàn bộ lịch sử các bài kiểm tra bạn đã làm. Bạn có chắc chắn muốn tiếp tục?")) {
+            localStorage.removeItem('fpt_exam_history');
+            renderHistory();
+            alert("🗑️ Đã xóa toàn bộ lịch sử thành công!");
+        }
+    }
+
+    function reloadExam(id) {
+        const history = JSON.parse(localStorage.getItem('fpt_exam_history') || '[]');
+        const target = history.find(h => h.id === id);
+        if (target) startQuiz(target);
+    }
+
+    /* ================= THEME TOGGLE LOGIC ================= */
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('fpt_theme', newTheme);
+        updateThemeIcon(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+        const iconElem = document.getElementById('theme-icon');
+        if (!iconElem) return;
+        if (theme === 'dark') {
+            iconElem.className = "fa-solid fa-sun";
+        } else {
+            iconElem.className = "fa-solid fa-moon";
+        }
+    }
+
+    function filterSubject(s, elem) {
+        selectedSubjectFilter = s;
+        document.querySelectorAll('.subject-chip').forEach(c => c.classList.remove('active'));
+        elem.classList.add('active');
+        if (document.getElementById('history-tab').classList.contains('active')) renderHistory();
+    }
+
+    /* ================= TRỘN ĐỀ THI & HỎI TRỢ LÝ GEMINI ================= */
+    function shuffleCurrentExam() {
+        if (!questionsList || questionsList.length === 0) {
+            alert("⚠️ Không có câu hỏi nào để trộn!");
+            return;
+        }
+        for (let i = questionsList.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [questionsList[i], questionsList[j]] = [questionsList[j], questionsList[i]];
+        }
+        answeredSet.clear();
+        flaggedSet.clear();
+        userAnswers = {};
+        correctCount = 0;
+        incorrectCount = 0;
+        renderQuestions();
+        renderQuestionPalette();
+        alert("🔀 Đã trộn thứ tự các câu hỏi thành công!");
+    }
+
+    async function askGeminiAssistant() {
+        const apiKey = document.getElementById('gemini-api-key').value.trim();
+        const promptText = document.getElementById('gemini-question-input').value.trim();
+        const responseBox = document.getElementById('gemini-response');
+
+        if (!promptText) {
+            alert("⚠️ Vui lòng nhập nội dung câu hỏi cho trợ lý AI!");
+            return;
+        }
+
+        responseBox.style.display = 'block';
+        responseBox.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Trợ lý AI đang suy nghĩ...`;
+
+        if (!apiKey) {
+            setTimeout(() => {
+                responseBox.innerHTML = `<strong>💡 Gợi ý từ Trợ lý AI (Smart Offline Mode):</strong><br>Dựa trên nội dung bạn hỏi ("${promptText}"), hãy phân tích kỹ các khái niệm cơ bản hoặc sử dụng tính năng lật Flashcard để ghi nhớ từ khóa cốt lõi nhé!`;
+            }, 800);
+            return;
+        }
+
+        try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: "Hãy giải đáp ngắn gọn, dễ hiểu và chính xác cho câu hỏi học tập sau: " + promptText }] }]
+                })
+            });
+            const data = await res.json();
+            const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || "Không nhận được phản hồi từ AI.";
+            responseBox.innerHTML = `<strong>🤖 Trợ lý AI Gemini:</strong><br>` + answer.replace(/\n/g, '<br>');
+            if (window.MathJax) MathJax.typesetPromise();
+        } catch (err) {
+            responseBox.innerHTML = `❌ Lỗi kết nối API Gemini: ${err.message}`;
+        }
+    }
+</script>
+</body>
+</html>
+
+```
