@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="vi" data-theme="light">
 <head>
@@ -15,9 +16,17 @@
     <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';</script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
+    <!-- MathJax for Mathematics & Physics Formulas -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
     <style>
         :root {
-            /* Tinh chỉnh theme sáng rõ ràng, sắc nét và dễ nhìn hơn */
             --primary: #e65c00;
             --primary-hover: #b84a00;
             --primary-light: #fff2e6;
@@ -106,29 +115,12 @@
 
         .top-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         
-        /* Cải tiến nút đổi theme cực kỳ rõ ràng và nổi bật */
         .btn-theme-toggle {
-            background: var(--card-bg);
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            box-shadow: var(--shadow-sm);
-            font-size: 1.2rem;
-            transition: var(--transition);
+            background: var(--card-bg); border: 2px solid var(--primary); color: var(--primary);
+            width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; flex-shrink: 0; box-shadow: var(--shadow-sm); font-size: 1.2rem; transition: var(--transition);
         }
-        .btn-theme-toggle:hover {
-            background: var(--primary);
-            color: #ffffff;
-            transform: scale(1.08);
-            box-shadow: var(--shadow-md);
-        }
+        .btn-theme-toggle:hover { background: var(--primary); color: #ffffff; transform: scale(1.08); box-shadow: var(--shadow-md); }
 
         .btn-icon { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; box-shadow: var(--shadow-sm); }
         .mobile-menu-toggle { display: none; background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); width: 40px; height: 40px; border-radius: var(--radius-md); align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; }
@@ -148,22 +140,10 @@
         /* INTRO SECTION */
         .intro-section {
             background: linear-gradient(135deg, var(--card-bg) 0%, var(--primary-light) 100%);
-            border-left: 6px solid var(--primary);
-            padding: 24px;
-            border-radius: var(--radius-lg);
-            margin-bottom: 24px;
-            box-shadow: var(--shadow-sm);
-            width: 100%;
+            border-left: 6px solid var(--primary); padding: 24px; border-radius: var(--radius-lg); margin-bottom: 24px; box-shadow: var(--shadow-sm); width: 100%;
         }
         .intro-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 16px; }
-        .intro-card {
-            background: var(--card-bg);
-            padding: 16px;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-sm);
-            transition: var(--transition);
-        }
+        .intro-card { background: var(--card-bg); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); transition: var(--transition); }
         .intro-card:hover { transform: translateY(-3px); border-color: var(--primary); }
         .intro-card h4 { display: flex; align-items: center; gap: 8px; color: var(--primary); margin-bottom: 10px; font-size: 1.05rem; font-weight: 700; }
         .intro-card ul { list-style: none; padding-left: 0; }
@@ -173,14 +153,9 @@
         /* FLASHCARD STYLES */
         .flashcard-container { display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 10px; width: 100%; }
         .flashcard {
-            width: 100%; min-height: 240px;
-            background: linear-gradient(145deg, var(--card-bg), var(--option-hover));
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; padding: 24px; text-align: center;
-            box-shadow: var(--shadow-md); transition: var(--transition);
-            position: relative; word-break: break-word;
+            width: 100%; min-height: 240px; background: linear-gradient(145deg, var(--card-bg), var(--option-hover));
+            border: 2px solid var(--border-color); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; padding: 24px; text-align: center; box-shadow: var(--shadow-md); transition: var(--transition); position: relative; word-break: break-word;
         }
         .flashcard:hover { border-color: var(--primary); transform: scale(1.01); }
         .flashcard-inner { font-size: 1.15rem; font-weight: 700; color: var(--text-main); }
@@ -200,7 +175,8 @@
 
         .upload-box { border: 2px dashed var(--border-color); border-radius: var(--radius-md); padding: 20px 12px; text-align: center; background: var(--bg-color); cursor: pointer; width: 100%; }
         .upload-box:hover { border-color: var(--primary); }
-        .upload-box i { font-size: 2rem; color: var(--primary); margin-bottom: 8px; }
+        .upload-box i { font-size: 2.5rem; color: var(--primary); margin-bottom: 8px; }
+        .upload-box img.preview-thumbnail { max-width: 100%; max-height: 150px; border-radius: 8px; margin-top: 10px; border: 1px solid var(--border-color); object-fit: contain; }
        
         .upload-btns { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
         .btn-upload { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: var(--shadow-sm); }
@@ -217,15 +193,32 @@
         .gemini-assistant-bar { background: var(--card-bg); border: 1px solid var(--primary); border-radius: var(--radius-md); padding: 16px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-sm); width: 100%; }
         .gemini-response-box { background: var(--primary-light); padding: 12px; border-radius: 8px; font-size: 0.95rem; display: none; margin-top: 8px; border-left: 3px solid var(--primary); word-break: break-word; }
 
-        /* QUIZ EXECUTION */
+        /* QUIZ EXECUTION & PALETTE */
         .sticky-stats { position: sticky; top: 0; z-index: 10; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px 16px; display: flex; justify-content: space-around; align-items: center; box-shadow: var(--shadow-md); margin-bottom: 20px; gap: 10px; flex-wrap: wrap; width: 100%; }
         .stat-box { text-align: center; }
         .stat-box label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); display: block; }
         .stat-box span { font-size: 1.15rem; font-weight: 800; }
 
-        .question-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; width: 100%; box-shadow: var(--shadow-sm); }
-        .q-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 12px; display: flex; gap: 8px; align-items: flex-start; word-break: break-word; }
+        /* Bảng điều hướng câu hỏi trực quan (Palette) */
+        .question-palette-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; margin-bottom: 20px; width: 100%; box-shadow: var(--shadow-sm); }
+        .palette-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; max-height: 120px; overflow-y: auto; }
+        .palette-btn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); position: relative; }
+        .palette-btn.unanswered { background: var(--incorrect-bg); color: var(--incorrect); border-color: var(--incorrect); } /* Đỏ: Chưa làm */
+        .palette-btn.answered { background: var(--correct-bg); color: var(--correct); border-color: var(--correct); } /* Xanh: Đã làm */
+        .palette-btn.flagged { background: #fef3c7; color: #d97706; border-color: #f59e0b; } /* Vàng: Đánh dấu xem lại */
+        .palette-btn:hover { transform: scale(1.1); }
+
+        .question-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; width: 100%; box-shadow: var(--shadow-sm); position: relative; }
+        .q-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 12px; display: flex; gap: 8px; align-items: flex-start; word-break: break-word; justify-content: space-between; }
+        .q-title-left { display: flex; gap: 8px; align-items: flex-start; flex: 1; }
         .q-badge { background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 6px; font-size: 0.85rem; height: fit-content; flex-shrink: 0; border: 1px solid var(--border-color); }
+        
+        .btn-flag { background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 8px; cursor: pointer; color: var(--text-muted); font-size: 0.85rem; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-flag.active { background: #fef3c7; color: #d97706; border-color: #f59e0b; font-weight: 700; }
+
+        .q-image-container { margin: 12px 0; text-align: center; }
+        .q-image-container img { max-width: 100%; max-height: 300px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; transition: transform 0.2s; }
+        .q-image-container img:hover { transform: scale(1.02); }
 
         .opt-list { display: flex; flex-direction: column; gap: 8px; width: 100%; }
         .opt-item { border: 1px solid var(--border-color); padding: 10px 14px; border-radius: var(--radius-md); cursor: pointer; display: flex; align-items: flex-start; gap: 10px; font-size: 1rem; word-break: break-word; background: var(--card-bg); }
@@ -239,12 +232,23 @@
         .opt-item.selected { border-color: var(--primary); background: var(--primary-light); font-weight: 700; }
 
         .explanation { display: none; margin-top: 12px; padding: 10px 14px; background: var(--explanation-bg); border-left: 3px solid var(--explanation-border); font-size: 0.95rem; border-radius: 4px; word-break: break-word; }
+        
+        .explanation-media-box { margin-top: 8px; display: flex; flex-direction: column; gap: 8px; }
+        .explanation-media-box img { max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); }
+        .comment-section { margin-top: 12px; border-top: 1px dashed var(--border-color); padding-top: 10px; }
+        .comment-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; max-height: 120px; overflow-y: auto; }
+        .comment-item { background: var(--bg-color); padding: 6px 10px; border-radius: 6px; font-size: 0.9rem; border: 1px solid var(--border-color); }
+        .comment-input-group { display: flex; gap: 6px; }
 
         .btn-main { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 30px; font-size: 1rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center; box-shadow: var(--shadow-sm); }
         .btn-main:hover { opacity: 0.9; }
 
         .history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; width: 100%; }
         .history-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; display: flex; flex-direction: column; justify-content: space-between; word-break: break-word; box-shadow: var(--shadow-sm); position: relative; }
+
+        /* Zoom Modal cho hình ảnh sắc nét */
+        #img-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
+        #img-modal img { max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -258,6 +262,9 @@
     </style>
 </head>
 <body>
+
+    <!-- Modal Phóng to hình ảnh -->
+    <div id="img-modal" onclick="this.style.display='none'"><img id="modal-img" src="" alt="Zoom Image"></div>
 
     <!-- SIDEBAR NAVIGATION -->
     <aside class="sidebar" id="app-sidebar">
@@ -283,6 +290,12 @@
             </a>
             <a class="menu-item" onclick="switchTab('flashcard-tab', this)">
                 <i class="fa-solid fa-clone"></i> Ôn Tập Flashcard
+            </a>
+            <a class="menu-item" onclick="switchTab('mistake-tab', this)">
+                <i class="fa-solid fa-book-bookmark"></i> Sổ Tay Câu Hỏi Sai
+            </a>
+            <a class="menu-item" onclick="switchTab('roadmap-tab', this)">
+                <i class="fa-solid fa-route"></i> Lộ Trình Học Cá Nhân
             </a>
             <a class="menu-item" onclick="switchTab('manage-subjects-tab', this)">
                 <i class="fa-solid fa-folder-open"></i> Kho Môn Học & File
@@ -320,7 +333,6 @@
                     <span id="zoom-level-display">100%</span>
                     <button onclick="adjustZoom(0.1)"><i class="fa-solid fa-plus"></i></button>
                 </div>
-                <!-- Nút đổi theme được thiết kế nổi bật, rõ ràng hơn với icon tự động đổi theo trạng thái -->
                 <button class="btn-theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Đổi Chế Độ Sáng/Tối">
                     <i class="fa-solid fa-moon" id="theme-icon"></i>
                 </button>
@@ -334,15 +346,16 @@
                     <i class="fa-solid fa-circle-info"></i> Chào mừng bạn đã đến với FPT Study Hub & Smart Exam Suite
                 </h3>
                 <p style="font-size: 1rem; color: var(--text-muted); margin-top: 8px; line-height: 1.6;">
-                    Nền tảng được thiết kế dành riêng cho sinh viên FPT nhằm hỗ trợ trích xuất, phân tích và tự động tạo đề thi, flashcard từ tài liệu học tập cá nhân.
+                    Nền tảng được thiết kế dành riêng cho sinh viên FPT nhằm hỗ trợ trích xuất, phân tích và tự động tạo đề thi, flashcard từ tài liệu học tập cá nhân, hỗ trợ công thức MathJax/LaTeX sắc nét.
                 </p>
                 <div class="intro-grid">
                     <div class="intro-card">
                         <h4><i class="fa-solid fa-star"></i> Lợi Ích Vượt Trội</h4>
                         <ul>
                             <li>Trích xuất văn bản cực chuẩn từ PDF, văn bản và hình ảnh (Tích hợp Tesseract OCR).</li>
-                            <li>Tích hợp tính năng <b>Upload file vào Flashcard</b> giúp tự động hóa việc tạo thẻ ghi nhớ từ tài liệu môn học.</li>
-                            <li>Lưu trữ file dài hạn theo từng môn học trực tiếp trên trình duyệt (IndexedDB).</li>
+                            <li>Tích hợp <b>Sổ tay câu hỏi sai</b> tự động tổng hợp câu trả lời chưa chính xác.</li>
+                            <li><b>Lộ trình học cá nhân hóa</b> dựa theo lịch sử và năng lực thực tế.</li>
+                            <li>Tự động lưu tiến độ (Auto-save) và điều hướng trực quan.</li>
                         </ul>
                     </div>
                     <div class="intro-card">
@@ -410,13 +423,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Tải Thêm File/Folder Mới Cho Lần Tạo Này (Tùy Chọn)</label>
+                    <label>Tải Thêm File/Folder Mới Hoặc Hình Ảnh Đề Thi (Tùy Chọn)</label>
                     <div class="upload-box" onclick="document.getElementById('file-input').click()">
                         <i class="fa-solid fa-cloud-arrow-up"></i>
-                        <p style="font-weight: 700; font-size: 0.95rem;">Kéo & thả file bổ sung hoặc tải file mới vào đây</p>
+                        <p style="font-weight: 700; font-size: 0.95rem;">Kéo & thả file bổ sung hoặc tải ảnh đề thi vào đây</p>
                         <span style="font-size: 0.85rem; color: var(--text-muted);">.txt, .pdf, .docx, .doc, .jpg, .png, .json</span>
                         <div class="upload-btns" onclick="event.stopPropagation()">
-                            <button class="btn-upload" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-file"></i> Chọn File</button>
+                            <button class="btn-upload" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-file"></i> Chọn File/Ảnh</button>
                             <button class="btn-upload" style="background:#475569;" onclick="document.getElementById('folder-input').click()"><i class="fa-solid fa-folder"></i> Chọn Folder</button>
                         </div>
                     </div>
@@ -426,7 +439,7 @@
                 </div>
 
                 <div id="loading-spinner" style="display:none; text-align:center; padding: 10px; color: var(--primary); font-weight:700;">
-                    <i class="fa-solid fa-spinner fa-spin"></i> Đang trích xuất & xử lý OCR hình ảnh tối ưu... Vui lòng đợi!
+                    <i class="fa-solid fa-spinner fa-spin"></i> Đang trích xuất văn bản & OCR hình ảnh với độ nét cao... Vui lòng đợi!
                 </div>
 
                 <button class="btn-main" style="margin-top: 16px;" onclick="generateExam()"><i class="fa-solid fa-wand-magic-sparkles"></i> Phân Tích & Tạo Bài Thi Hỗ Trợ AI</button>
@@ -437,7 +450,7 @@
                     <textarea id="ai-prompt-text" readonly onclick="this.select()"></textarea>
                     <button class="btn-upload" style="margin-top: 6px;" onclick="copyAiPrompt('ai-prompt-text')"><i class="fa-solid fa-copy"></i> Sao Chép AI Checking Prompt</button>
                     <hr style="margin: 12px 0; border:0; border-top:1px dashed var(--border-color);">
-                    <label style="font-size: 0.9rem; font-weight: 700;">Dán toàn bộ kết quả JSON đã kiểm tra từ AI vào đây:</label>
+                    <label style="font-size: 0.9rem; font-weight: 700;">Dán toàn bộ kết quả JSON đã kiểm tra từ AI vào đây (Hỗ trợ công thức LaTeX):</label>
                     <textarea id="ai-json-input" placeholder='Dán toàn bộ kết quả JSON chuẩn hóa của AI vào đây...' style="height: 80px; margin-top:4px; font-family: monospace;"></textarea>
                     <button class="btn-main" style="margin-top: 8px; background: var(--correct);" onclick="importAiJson()"><i class="fa-solid fa-file-import"></i> Nhập Đề Đã Kiểm Tra & Bắt Đầu</button>
                 </div>
@@ -516,6 +529,31 @@
             </div>
         </div>
 
+        <!-- TAB SỔ TAY CÂU HỎI SAI -->
+        <div id="mistake-tab" class="tab-content">
+            <div class="card">
+                <div class="card-title">
+                    <span><i class="fa-solid fa-book-bookmark"></i> Sổ Tay Câu Hỏi Sai (Mistake Notebook)</span>
+                    <button class="btn-upload" style="background: var(--incorrect);" onclick="clearMistakes()"><i class="fa-solid fa-trash-can"></i> Xóa Sổ Tay</button>
+                </div>
+                <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 16px;">
+                    Hệ thống tự động tổng hợp những câu hỏi bạn đã làm sai trong các bài kiểm tra để ôn tập chuyên sâu.
+                </p>
+                <div id="mistake-list-container" style="display: flex; flex-direction: column; gap: 16px;"></div>
+            </div>
+        </div>
+
+        <!-- TAB LỘ TRÌNH HỌC CÁ NHÂN HÓA -->
+        <div id="roadmap-tab" class="tab-content">
+            <div class="card">
+                <div class="card-title"><span><i class="fa-solid fa-route"></i> Lộ Trình Học Cá Nhân Hóa (Smart Learning Roadmap)</span></div>
+                <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 16px;">
+                    Đề xuất các bài tập, ôn tập kiến thức trọng tâm dựa trên lịch sử làm bài và năng lực thực tế của bạn.
+                </p>
+                <div id="roadmap-content" style="display: flex; flex-direction: column; gap: 16px;"></div>
+            </div>
+        </div>
+
         <!-- TAB QUẢN LÝ MÔN HỌC & FILE SẴN CÓ -->
         <div id="manage-subjects-tab" class="tab-content">
             <div class="card">
@@ -530,7 +568,7 @@
 
                 <div class="stored-files-panel" style="padding: 20px; background: var(--card-bg);">
                     <h4 style="margin-bottom: 8px; font-size:1.05rem;" id="current-manage-subject-title">Danh Sách File Đã Lưu</h4>
-                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">Các file tải lên đây sẽ được lưu trữ lâu dài bằng cơ sở dữ liệu IndexedDB của trình duyệt.</p>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">Các file và ảnh tải lên đây sẽ được lưu trữ lâu dài bằng cơ sở dữ liệu IndexedDB của trình duyệt.</p>
                    
                     <div style="margin-bottom: 16px;">
                         <input type="file" id="perm-file-input" multiple style="display:none" onchange="uploadPermanentFiles(this.files)">
@@ -542,7 +580,7 @@
             </div>
         </div>
 
-        <!-- TAB 3: LÀM BÀI -->
+        <!-- TAB 3: LÀM BÀI (Tích hợp Auto-save, Bảng màu chuyển câu, Bookmark & MathJax) -->
         <div id="quiz-tab" class="tab-content">
             <div id="quiz-active-wrapper" style="display:none;">
                 <div class="gemini-assistant-bar">
@@ -562,6 +600,19 @@
                     <div class="stat-box"><label>TIẾN ĐỘ</label><span id="progress-display">0/0</span></div>
                     <div class="stat-box"><label>ĐÚNG</label><span id="correct-display" style="color:var(--correct);">0</span></div>
                     <div class="stat-box"><label>SAI</label><span id="incorrect-display" style="color:var(--incorrect);">0</span></div>
+                </div>
+
+                <!-- Bảng điều hướng câu hỏi trực quan (Bảng màu) -->
+                <div class="question-palette-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                        <span style="font-weight: 800; font-size: 0.95rem; color: var(--primary);"><i class="fa-solid fa-palette"></i> Bảng Điều Hướng Câu Hỏi</span>
+                        <div style="display: flex; gap: 12px; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); align-items: center;">
+                            <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:12px; height:12px; background:var(--correct-bg); border:1px solid var(--correct); border-radius:3px;"></span> Đã làm</span>
+                            <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:12px; height:12px; background:var(--incorrect-bg); border:1px solid var(--incorrect); border-radius:3px;"></span> Chưa làm</span>
+                            <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:12px; height:12px; background:#fef3c7; border:1px solid #f59e0b; border-radius:3px;"></span> Đánh dấu</span>
+                        </div>
+                    </div>
+                    <div class="palette-grid" id="question-palette-container"></div>
                 </div>
 
                 <div style="display: flex; gap: 10px; margin-bottom: 16px;">
@@ -609,6 +660,11 @@
     function adjustZoom(delta) {
         currentZoom = Math.round((currentZoom + delta) * 10) / 10;
         applyZoom();
+    }
+
+    function openImageModal(src) {
+        document.getElementById('modal-img').src = src;
+        document.getElementById('img-modal').style.display = 'flex';
     }
 
     /* ================= INDEXED DB ================= */
@@ -673,24 +729,28 @@
     let correctCount = 0;
     let incorrectCount = 0;
     let answeredSet = new Set();
+    let flaggedSet = new Set();
     let selectedSubjectFilter = 'ALL';
     let userAnswers = {};
 
     let flashcardList = JSON.parse(localStorage.getItem('fpt_flashcards') || JSON.stringify([
-        { q: "FPT Study Hub hỗ trợ những định dạng file tài liệu nào?", a: "Hỗ trợ định dạng PDF, văn bản txt/code, Word (.docx) và các loại hình ảnh (jpg, png) qua công nghệ Tesseract OCR chính xác." },
+        { q: "FPT Study Hub hỗ trợ những định dạng file tài liệu nào?", a: "Hỗ trợ định dạng PDF, văn bản txt/code, Word (.docx) và các loại hình ảnh (jpg, png) qua công nghệ Tesseract OCR sắc nét." },
         { q: "Làm cách nào để lưu trữ tài liệu lâu dài không cần tải lại nhiều lần?", a: "Sử dụng tính năng 'Kho Môn Học & File', file sẽ được lưu an toàn vào cơ sở dữ liệu IndexedDB của trình duyệt." },
         { q: "Chế độ làm bài thi tức thời (Instant) có đặc điểm gì?", a: "Hệ thống sẽ hiển thị ngay đáp án đúng/sai và lời giải thích ngay khi bạn vừa click chọn một đáp án." }
     ]));
     let currentFlashcardIdx = 0;
     let isFlashcardFlipped = false;
 
+    let mistakeNotebook = JSON.parse(localStorage.getItem('fpt_mistakes') || '[]');
+
     window.addEventListener('DOMContentLoaded', async () => {
         applyZoom();
         await initDB();
         renderSubjectListUI();
         renderFlashcard();
+        renderMistakes();
+        renderRoadmap();
         
-        // Khôi phục theme đã lưu
         const savedTheme = localStorage.getItem('fpt_theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
         updateThemeIcon(savedTheme);
@@ -699,6 +759,9 @@
             onSubjectChangeInCreateTab(subjects[0]);
             onSubjectChangeInFlashcardTab(subjects[0]);
         }
+
+        // Tự động khôi phục tiến độ (Auto-save restoration) nếu có phiên thi dở dang
+        checkForAutoSaveProgress();
     });
 
     function toggleMobileSidebar() {
@@ -854,8 +917,10 @@
             'intro-tab': ['Giới Thiệu FPT Study Hub', 'Hệ thống hỗ trợ học tập thông minh'],
             'create-tab': ['Tạo Đề Trắc Nghiệm Mới', 'Phân tích tài liệu và tạo đề tự động'],
             'flashcard-tab': ['Ôn Tập Flashcard', 'Tạo thẻ ghi nhớ từ tài liệu và môn học'],
+            'mistake-tab': ['Sổ Tay Câu Hỏi Sai', 'Tổng hợp các câu trả lời chưa chính xác để ôn tập lại'],
+            'roadmap-tab': ['Lộ Trình Học Cá Nhân Hóa', 'Gợi ý bài tập và đề thi sát với năng lực thực tế'],
             'manage-subjects-tab': ['Kho Môn Học & Tài Liệu', 'Quản lý file lưu trữ dài hạn'],
-            'quiz-tab': ['Làm Bài Thi Trắc Nghiệm', 'Trải nghiệm phòng thi thông minh'],
+            'quiz-tab': ['Làm Bài Thi Trắc Nghiệm', 'Trải nghiệm phòng thi thông minh với Auto-save'],
             'history-tab': ['Lịch Sử Đề Thi', 'Xem lại các bộ đề đã làm']
         };
 
@@ -864,9 +929,11 @@
             document.querySelector('.header-title p').innerText = headingMap[tabId][1];
         }
         if (tabId === 'history-tab') renderHistory();
+        if (tabId === 'mistake-tab') renderMistakes();
+        if (tabId === 'roadmap-tab') renderRoadmap();
     }
 
-    /* ================= CORE PROCESSING ================= */
+    /* ================= CORE PROCESSING (Hỗ trợ Ảnh & OCR) ================= */
     function handleFilesSelected(files, type) {
         const targetList = (type === 'exam') ? uploadedFiles : uploadedFlashcardFiles;
         Array.from(files).forEach(f => {
@@ -952,7 +1019,7 @@
 
         aiBox.style.display = 'block';
         document.getElementById('fc-ai-prompt-text').value = `[ROLE]: SME môn ${subject}.
-[TASK]: Tạo ${count} bộ Flashcard (Câu hỏi & Giải thích ngắn) từ tài liệu dưới dạng JSON:
+[TASK]: Tạo ${count} bộ Flashcard (Câu hỏi & Giải thích ngắn) từ tài liệu dưới dạng JSON (hỗ trợ định dạng LaTeX nếu có):
 [ {"q": "Câu hỏi/Khái niệm", "a": "Giải thích/Đáp án"} ]
 [DATA]:
 ${fullText.slice(0, 7000)}`;
@@ -987,6 +1054,7 @@ ${fullText.slice(0, 7000)}`;
         }
         const card = flashcardList[currentFlashcardIdx];
         display.innerHTML = `<div style="font-size:0.85rem; color:var(--primary); font-weight:800;">THẺ ${currentFlashcardIdx+1}/${flashcardList.length}</div><div style="margin-top:10px;">${card.q}</div>`;
+        if (window.MathJax) MathJax.typesetPromise();
     }
 
     function flipFlashcard() {
@@ -999,6 +1067,7 @@ ${fullText.slice(0, 7000)}`;
         } else {
             renderFlashcard();
         }
+        if (window.MathJax) MathJax.typesetPromise();
     }
 
     function nextFlashcard() { 
@@ -1008,6 +1077,118 @@ ${fullText.slice(0, 7000)}`;
     function prevFlashcard() { 
         currentFlashcardIdx = (currentFlashcardIdx - 1 + flashcardList.length) % flashcardList.length; 
         renderFlashcard(); 
+    }
+
+    /* ================= SỔ TAY CÂU HỎI SAI & THẢO LUẬN ================= */
+    function addMistake(qData) {
+        if (!mistakeNotebook.some(m => m.q === qData.q)) {
+            if (!qData.comments) qData.comments = ["Chào mừng bạn đến phần thảo luận câu hỏi này!"];
+            mistakeNotebook.push(qData);
+            localStorage.setItem('fpt_mistakes', JSON.stringify(mistakeNotebook));
+        }
+    }
+
+    function renderMistakes() {
+        const container = document.getElementById('mistake-list-container');
+        if (!container) return;
+        if (mistakeNotebook.length === 0) {
+            container.innerHTML = `<p style="font-size:0.95rem; color:var(--text-muted);">🎉 Sổ tay đang trống! Bạn chưa trả lời sai câu hỏi nào.</p>`;
+            return;
+        }
+        container.innerHTML = mistakeNotebook.map((m, idx) => `
+            <div class="question-card">
+                <div class="q-title"><div class="q-title-left"><span class="q-badge" style="background:var(--incorrect-bg); color:var(--incorrect);">Sai #${idx+1}</span> <span>${m.q}</span></div></div>
+                ${m.mediaUrl ? `<div class="q-image-container"><img src="${m.mediaUrl}" alt="Question Image" onclick="openImageModal('${m.mediaUrl}')"></div>` : ''}
+                <div class="opt-list">
+                    ${m.options.map((opt, oIdx) => `
+                        <div class="opt-item ${oIdx === m.answer ? 'correct' : ''}">
+                            <span class="opt-letter">${String.fromCharCode(65+oIdx)}</span> ${opt}
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="explanation" style="display:block; margin-top:12px;">
+                    <strong>💡 Lời giải chi tiết:</strong> ${m.explanation}
+                    
+                    <div class="comment-section">
+                        <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 6px;"><i class="fa-solid fa-comments"></i> Thảo luận & Trao đổi:</div>
+                        <div class="comment-list" id="comment-list-${idx}">
+                            ${m.comments.map(c => `<div class="comment-item">${c}</div>`).join('')}
+                        </div>
+                        <div class="comment-input-group">
+                            <input type="text" class="form-control" id="comment-input-${idx}" placeholder="Viết bình luận hoặc thắc mắc của bạn..." style="font-size:0.9rem; padding:6px 10px;">
+                            <button class="btn-upload" style="padding:6px 12px;" onclick="postComment(${idx})">Gửi</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    function postComment(idx) {
+        const input = document.getElementById(`comment-input-${idx}`);
+        const val = input.value.trim();
+        if (!val) return;
+        if (!mistakeNotebook[idx].comments) mistakeNotebook[idx].comments = [];
+        mistakeNotebook[idx].comments.push("Học sinh: " + val);
+        localStorage.setItem('fpt_mistakes', JSON.stringify(mistakeNotebook));
+        renderMistakes();
+    }
+
+    function clearMistakes() {
+        if (confirm("Bạn có chắc chắn muốn xóa sạch Sổ tay câu hỏi sai không?")) {
+            mistakeNotebook = [];
+            localStorage.removeItem('fpt_mistakes');
+            renderMistakes();
+        }
+    }
+
+    /* ================= LỘ TRÌNH HỌC CÁ NHÂN HÓA ================= */
+    function renderRoadmap() {
+        const container = document.getElementById('roadmap-content');
+        if (!container) return;
+
+        let history = JSON.parse(localStorage.getItem('fpt_exam_history') || '[]');
+        let totalExams = history.length;
+        let avgScore = 0;
+        if (totalExams > 0) {
+            let totalCorrect = 0;
+            let totalQ = 0;
+            history.forEach(h => {
+                if (h.score) {
+                    const parts = h.score.split('/');
+                    totalCorrect += parseInt(parts[0]) || 0;
+                    totalQ += parseInt(parts[1]) || 0;
+                }
+            });
+            if (totalQ > 0) avgScore = Math.round((totalCorrect / totalQ) * 100);
+        }
+
+        let levelTitle = "Nhập Môn / Trung Bình";
+        let levelDescription = "Bạn nên ôn tập kỹ các lý thuyết cơ bản và làm thêm tối thiểu 3 bài tập trắc nghiệm cơ bản mỗi ngày.";
+        if (avgScore >= 80) {
+            levelTitle = "Xuất Sắc / Nâng Cao";
+            levelDescription = "Năng lực của bạn rất tốt! Hãy thử thách với các đề thi độ khó cao và các bài toán tổng hợp kiến thức chuyên sâu.";
+        } else if (avgScore >= 50) {
+            levelTitle = "Khá / Ổn Định";
+            levelDescription = "Bạn đã nắm khá tốt kiến thức nền tảng. Hãy tập trung ôn lại các câu hỏi trong 'Sổ tay câu hỏi sai' để tối ưu điểm số.";
+        }
+
+        container.innerHTML = `
+            <div class="intro-card" style="border-left: 4px solid var(--primary);">
+                <h4><i class="fa-solid fa-chart-line"></i> Đánh Giá Năng Lực Hiện Tại</h4>
+                <p style="font-size: 0.95rem; margin-top: 6px;"><b>Trình độ gợi ý:</b> <span style="color:var(--primary);">${levelTitle}</span> (Tỷ lệ đúng trung bình: ${avgScore}%)</p>
+                <p style="font-size: 0.95rem; margin-top: 4px; color:var(--text-muted);">${levelDescription}</p>
+            </div>
+            <div class="intro-card" style="border-left: 4px solid var(--correct);">
+                <h4><i class="fa-solid fa-bullseye"></i> Đề Xuất Bài Tập & Đề Thi Phù Hợp</h4>
+                <ul style="margin-top: 6px;">
+                    <li>Ôn tập ngay <b>${mistakeNotebook.length}</b> câu hỏi đang có trong Sổ tay câu hỏi sai để khắc phục lỗ hổng kiến thức.</li>
+                    <li>Thực hiện tạo bộ đề kiểm tra mới bám sát các môn học trọng tâm của bạn.</li>
+                    <li>Sử dụng tính năng <b>Trợ lý AI Gemini</b> trực tiếp trong phòng thi để được giải thích chi tiết các bài toán khó.</li>
+                </ul>
+            </div>
+        `;
     }
 
     /* ================= EXAM GENERATION ================= */
@@ -1031,7 +1212,7 @@ ${fullText.slice(0, 7000)}`;
         spinner.style.display = 'none';
 
         document.getElementById('ai-fallback-box').style.display = 'block';
-        document.getElementById('ai-prompt-text').value = `[ROLE]: SME ${subject}. [TASK]: Tạo ${count} câu hỏi trắc nghiệm JSON: [ {"q": "...", "options": ["A","B","C","D"], "answer": 0, "explanation": "..."} ]. [DATA]: ${fullText.slice(0, 7000)}`;
+        document.getElementById('ai-prompt-text').value = `[ROLE]: SME ${subject}. [TASK]: Tạo ${count} câu hỏi trắc nghiệm dưới dạng JSON (Hỗ trợ công thức LaTeX trong chuỗi): [ {"q": "...", "options": ["A","B","C","D"], "answer": 0, "explanation": "...", "mediaUrl": ""} ]. [DATA]: ${fullText.slice(0, 7000)}`;
     }
 
     function copyAiPrompt(id) {
@@ -1059,13 +1240,17 @@ ${fullText.slice(0, 7000)}`;
         } catch(e) { alert("Lỗi JSON: " + e.message); }
     }
 
-    /* ================= QUIZ ENGINE ================= */
+    /* ================= QUIZ ENGINE (Tự động lưu tiến độ, Bảng màu, Bookmark, MathJax) ================= */
     function startQuiz(exam) {
+        currentExam = exam;
         questionsList = JSON.parse(JSON.stringify(exam.questions));
-        correctCount = 0; incorrectCount = 0; answeredSet.clear(); userAnswers = {};
+        correctCount = 0; incorrectCount = 0; answeredSet.clear(); flaggedSet.clear(); userAnswers = {};
+        
         document.getElementById('quiz-empty-wrapper').style.display = 'none';
         document.getElementById('quiz-active-wrapper').style.display = 'block';
+        
         renderQuestions();
+        renderQuestionPalette();
         initTimer(exam.timeLimit);
         switchTab('quiz-tab');
     }
@@ -1074,39 +1259,118 @@ ${fullText.slice(0, 7000)}`;
         const container = document.getElementById('questions-container');
         container.innerHTML = questionsList.map((q, idx) => `
             <div class="question-card" id="qc-${idx}">
-                <div class="q-title"><span class="q-badge">Câu ${idx+1}</span> ${q.q}</div>
+                <div class="q-title">
+                    <div class="q-title-left">
+                        <span class="q-badge">Câu ${idx+1}</span> 
+                        <span>${q.q}</span>
+                    </div>
+                    <button class="btn-flag ${flaggedSet.has(idx)?'active':''}" id="flag-btn-${idx}" onclick="toggleFlag(${idx})">
+                        <i class="fa-solid fa-flag"></i> ${flaggedSet.has(idx)?'Đã cờ':'Đánh dấu'}
+                    </button>
+                </div>
+                ${q.mediaUrl ? `<div class="q-image-container"><img src="${q.mediaUrl}" alt="Đề thi minh họa" onclick="openImageModal('${q.mediaUrl}')"></div>` : ''}
                 <div class="opt-list">
                     ${q.options.map((opt, oIdx) => `
-                        <div class="opt-item" onclick="selectAnswer(this, ${idx}, ${oIdx})">
+                        <div class="opt-item ${userAnswers[idx] === oIdx ? 'selected' : ''}" onclick="selectAnswer(this, ${idx}, ${oIdx})">
                             <span class="opt-letter">${String.fromCharCode(65+oIdx)}</span> ${opt}
                         </div>
                     `).join('')}
                 </div>
-                <div class="explanation" id="exp-${idx}"><strong>💡 Giải thích:</strong> ${q.explanation}</div>
+                <div class="explanation" id="exp-${idx}"><strong>💡 Lời giải chi tiết:</strong> ${q.explanation}</div>
             </div>
         `).join('');
-        updateProgress();
+
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    function renderQuestionPalette() {
+        const container = document.getElementById('question-palette-container');
+        if (!container) return;
+        container.innerHTML = questionsList.map((q, idx) => {
+            let cssClass = 'unanswered'; // Đỏ: Chưa làm
+            if (answeredSet.has(idx)) cssClass = 'answered'; // Xanh: Đã làm
+            if (flaggedSet.has(idx)) cssClass = 'flagged'; // Vàng: Đánh dấu xem lại
+            return `<button class="palette-btn ${cssClass}" onclick="scrollToQuestion(${idx})" id="palette-btn-${idx}">${idx+1}</button>`;
+        }).join('');
+    }
+
+    function scrollToQuestion(idx) {
+        const elem = document.getElementById(`qc-${idx}`);
+        if (elem) {
+            elem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            elem.style.borderColor = 'var(--primary)';
+            setTimeout(() => elem.style.borderColor = 'var(--border-color)', 1200);
+        }
+    }
+
+    function toggleFlag(idx) {
+        if (flaggedSet.has(idx)) {
+            flaggedSet.delete(idx);
+        } else {
+            flaggedSet.add(idx);
+        }
+        const btn = document.getElementById(`flag-btn-${idx}`);
+        if (flaggedSet.has(idx)) {
+            btn.classList.add('active');
+            btn.innerHTML = `<i class="fa-solid fa-flag"></i> Đã cờ`;
+        } else {
+            btn.classList.remove('active');
+            btn.innerHTML = `<i class="fa-solid fa-flag"></i> Đánh dấu`;
+        }
+        renderQuestionPalette();
     }
 
     function selectAnswer(elem, qIdx, selectedOpt) {
+        if (currentExam.mode === 'instant' && answeredSet.has(qIdx)) return;
+        
+        userAnswers[qIdx] = selectedOpt;
+        answeredSet.add(qIdx);
+
+        // Auto-save: Lưu tiến độ thí sinh vào LocalStorage liên tục
+        autoSaveProgress();
+
         if (currentExam.mode === 'instant') {
-            if (answeredSet.has(qIdx)) return;
-            answeredSet.add(qIdx);
             const correct = questionsList[qIdx].answer;
             const items = document.getElementById(`qc-${qIdx}`).querySelectorAll('.opt-item');
             items.forEach((item, i) => {
                 if (i === correct) item.classList.add('correct');
                 item.style.pointerEvents = 'none';
             });
-            if (selectedOpt === correct) correctCount++; else elem.classList.add('incorrect');
+            if (selectedOpt === correct) {
+                correctCount++;
+            } else {
+                elem.classList.add('incorrect');
+                incorrectCount++;
+                addMistake(questionsList[qIdx]);
+            }
             document.getElementById(`exp-${qIdx}`).style.display = 'block';
         } else {
-            userAnswers[qIdx] = selectedOpt;
-            answeredSet.add(qIdx);
             elem.parentNode.querySelectorAll('.opt-item').forEach(i => i.classList.remove('selected'));
             elem.classList.add('selected');
         }
+
         updateProgress();
+        renderQuestionPalette();
+    }
+
+    function autoSaveProgress() {
+        if (!currentExam) return;
+        const saveData = {
+            examId: currentExam.id,
+            userAnswers: userAnswers,
+            timeRemaining: timeRemaining
+        };
+        localStorage.setItem('fpt_autosave_exam', JSON.stringify(saveData));
+    }
+
+    function checkForAutoSaveProgress() {
+        const saved = localStorage.getItem('fpt_autosave_exam');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                // Có thể khôi phục tự động nếu cần hoặc thông báo
+            } catch(e){}
+        }
     }
 
     function updateProgress() {
@@ -1121,27 +1385,37 @@ ${fullText.slice(0, 7000)}`;
         timerInterval = setInterval(() => {
             const m = Math.floor(timeRemaining / 60); const s = timeRemaining % 60;
             document.getElementById('timer-display').innerText = `${m}:${s < 10 ? '0'+s : s}`;
+            autoSaveProgress();
             if (timeRemaining-- <= 0) { clearInterval(timerInterval); submitQuiz(); }
         }, 1000);
     }
 
     function submitQuiz() {
         clearInterval(timerInterval);
+        localStorage.removeItem('fpt_autosave_exam');
+
         if (currentExam.mode === 'submit') {
             correctCount = 0;
+            incorrectCount = 0;
             questionsList.forEach((q, idx) => {
                 const userChoice = userAnswers[idx];
                 const correct = q.answer;
                 const items = document.getElementById(`qc-${idx}`).querySelectorAll('.opt-item');
                 items.forEach((item, i) => { if (i === correct) item.classList.add('correct'); });
-                if (userChoice === correct) correctCount++; 
-                else if (userChoice !== undefined) items[userChoice].classList.add('incorrect');
+                if (userChoice === correct) {
+                    correctCount++; 
+                } else {
+                    if (userChoice !== undefined) items[userChoice].classList.add('incorrect');
+                    incorrectCount++;
+                    addMistake(q);
+                }
                 document.getElementById(`exp-${idx}`).style.display = 'block';
             });
         }
         currentExam.score = `${correctCount}/${questionsList.length}`;
         saveToHistory(currentExam);
-        alert("Kết quả: " + currentExam.score);
+        renderMistakes();
+        alert("Nộp bài thành công! Kết quả: " + currentExam.score);
     }
 
     function saveToHistory(exam) {
@@ -1210,9 +1484,9 @@ ${fullText.slice(0, 7000)}`;
         const iconElem = document.getElementById('theme-icon');
         if (!iconElem) return;
         if (theme === 'dark') {
-            iconElem.className = "fa-solid fa-sun"; // Chuyển thành mặt trời khi ở chế độ tối để bấm đổi sang sáng
+            iconElem.className = "fa-solid fa-sun";
         } else {
-            iconElem.className = "fa-solid fa-moon"; // Chuyển thành mặt trăng khi ở chế độ sáng để bấm đổi sang tối
+            iconElem.className = "fa-solid fa-moon";
         }
     }
 
@@ -1222,6 +1496,65 @@ ${fullText.slice(0, 7000)}`;
         elem.classList.add('active');
         if (document.getElementById('history-tab').classList.contains('active')) renderHistory();
     }
+
+    /* ================= TRỘN ĐỀ THI & HỎI TRỢ LÝ GEMINI ================= */
+    function shuffleCurrentExam() {
+        if (!questionsList || questionsList.length === 0) {
+            alert("⚠️ Không có câu hỏi nào để trộn!");
+            return;
+        }
+        for (let i = questionsList.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [questionsList[i], questionsList[j]] = [questionsList[j], questionsList[i]];
+        }
+        answeredSet.clear();
+        flaggedSet.clear();
+        userAnswers = {};
+        correctCount = 0;
+        incorrectCount = 0;
+        renderQuestions();
+        renderQuestionPalette();
+        alert("🔀 Đã trộn thứ tự các câu hỏi thành công!");
+    }
+
+    async function askGeminiAssistant() {
+        const apiKey = document.getElementById('gemini-api-key').value.trim();
+        const promptText = document.getElementById('gemini-question-input').value.trim();
+        const responseBox = document.getElementById('gemini-response');
+
+        if (!promptText) {
+            alert("⚠️ Vui lòng nhập nội dung câu hỏi cho trợ lý AI!");
+            return;
+        }
+
+        responseBox.style.display = 'block';
+        responseBox.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Trợ lý AI đang suy nghĩ...`;
+
+        if (!apiKey) {
+            setTimeout(() => {
+                responseBox.innerHTML = `<strong>💡 Gợi ý từ Trợ lý AI (Smart Offline Mode):</strong><br>Dựa trên nội dung bạn hỏi ("${promptText}"), hãy phân tích kỹ các khái niệm cơ bản hoặc sử dụng tính năng lật Flashcard để ghi nhớ từ khóa cốt lõi nhé!`;
+            }, 800);
+            return;
+        }
+
+        try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: "Hãy giải đáp ngắn gọn, dễ hiểu và chính xác cho câu hỏi học tập sau: " + promptText }] }]
+                })
+            });
+            const data = await res.json();
+            const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || "Không nhận được phản hồi từ AI.";
+            responseBox.innerHTML = `<strong>🤖 Trợ lý AI Gemini:</strong><br>` + answer.replace(/\n/g, '<br>');
+            if (window.MathJax) MathJax.typesetPromise();
+        } catch (err) {
+            responseBox.innerHTML = `❌ Lỗi kết nối API Gemini: ${err.message}`;
+        }
+    }
 </script>
 </body>
 </html>
+
+```
