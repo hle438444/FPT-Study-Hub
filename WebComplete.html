@@ -73,6 +73,42 @@
         html { width: 100%; height: 100%; font-size: calc(15px * var(--zoom-scale)); }
         body { width: 100%; min-height: 100vh; overflow-x: hidden; font-family: 'Times New Roman', Times, serif; background-color: var(--bg-color); color: var(--text-main); display: flex; }
 
+        /* AUTH MODAL & OVERLAY */
+        #auth-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6);
+            z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);
+        }
+        .auth-card {
+            background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg);
+            width: 100%; max-width: 420px; padding: 32px; box-shadow: var(--shadow-md); display: flex; flex-direction: column; gap: 20px;
+        }
+        .auth-header { text-align: center; }
+        .auth-header h2 { color: var(--primary); font-size: 1.5rem; font-weight: 800; margin-bottom: 6px; }
+        .auth-header p { color: var(--text-muted); font-size: 0.95rem; }
+        .auth-tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 10px; }
+        .auth-tab { flex: 1; text-align: center; padding: 10px; font-weight: 700; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -2px; }
+        .auth-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .google-btn {
+            background: #ffffff; color: #333333; border: 1px solid var(--border-color); border-radius: var(--radius-md);
+            padding: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;
+            box-shadow: var(--shadow-sm); transition: var(--transition);
+        }
+        .google-btn:hover { background: #f1f5f9; }
+        .divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 0.85rem; margin: 5px 0; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
+        .divider::before { margin-right: .75em; }
+        .divider::after { margin-left: .75em; }
+
+        /* USER PROFILE CHIP IN SIDEBAR */
+        .user-profile-box {
+            display: flex; align-items: center; justify-content: space-between; background: var(--bg-color);
+            padding: 10px 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 10px;
+        }
+        .user-info { display: flex; align-items: center; gap: 8px; overflow: hidden; }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; flex-shrink: 0; }
+        .user-name { font-size: 0.9rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
+        .btn-logout { background: none; border: none; color: var(--incorrect); cursor: pointer; font-size: 1rem; padding: 4px; }
+
         /* SIDEBAR */
         aside.sidebar {
             width: 280px; min-width: 280px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color);
@@ -262,6 +298,39 @@
 </head>
 <body>
 
+    <!-- MODAL ĐĂNG NHẬP / ĐĂNG KÝ -->
+    <div id="auth-overlay">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2>FPT Study Hub</h2>
+                <p>Đăng nhập để bắt đầu học tập và quản lý tài liệu</p>
+            </div>
+            
+            <button class="google-btn" onclick="loginWithGoogle()">
+                <i class="fa-brands fa-google" style="color: #ea4335;"></i> Đăng nhập bằng tài khoản Google
+            </button>
+
+            <div class="divider">hoặc với email</div>
+
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="tab-login-btn" onclick="switchAuthTab('login')">Đăng Nhập</div>
+                <div class="auth-tab" id="tab-register-btn" onclick="switchAuthTab('register')">Đăng Ký</div>
+            </div>
+
+            <div id="auth-form-container">
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label>Email Sinh Viên</label>
+                    <input type="email" id="auth-email" class="form-control" placeholder="name@fpt.edu.vn">
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label>Mật Khẩu</label>
+                    <input type="password" id="auth-password" class="form-control" placeholder="••••••••">
+                </div>
+                <button class="btn-main" id="auth-submit-btn" onclick="handleEmailAuth()">Đăng Nhập</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Phóng to hình ảnh -->
     <div id="img-modal" onclick="this.style.display='none'"><img id="modal-img" src="" alt="Zoom Image"></div>
 
@@ -273,6 +342,15 @@
                 <span>FPT Study Hub</span>
             </div>
             <button class="mobile-close-btn" onclick="toggleMobileSidebar()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- THÔNG TIN TÀI KHOẢN ĐANG ĐĂNG NHẬP -->
+        <div class="user-profile-box" id="user-profile-box">
+            <div class="user-info">
+                <div class="user-avatar" id="user-avatar-text">F</div>
+                <div class="user-name" id="user-display-name">FPT Student</div>
+            </div>
+            <button class="btn-logout" title="Đăng xuất" onclick="logoutSystem()"><i class="fa-solid fa-right-from-bracket"></i></button>
         </div>
 
         <div class="menu-group">
@@ -645,6 +723,92 @@
     </main>
 
 <script>
+    /* ================= AUTHENTICATION LOGIC ================= */
+    let authMode = 'login'; // 'login' hoặc 'register'
+
+    function switchAuthTab(mode) {
+        authMode = mode;
+        const loginBtn = document.getElementById('tab-login-btn');
+        const regBtn = document.getElementById('tab-register-btn');
+        const submitBtn = document.getElementById('auth-submit-btn');
+
+        if (mode === 'login') {
+            loginBtn.classList.add('active');
+            regBtn.classList.remove('active');
+            submitBtn.innerText = "Đăng Nhập";
+        } else {
+            regBtn.classList.add('active');
+            loginBtn.classList.remove('active');
+            submitBtn.innerText = "Đăng Ký Tài Khoản";
+        }
+    }
+
+    function handleEmailAuth() {
+        const email = document.getElementById('auth-email').value.trim();
+        const password = document.getElementById('auth-password').value.trim();
+
+        if (!email || !password) {
+            alert("⚠️ Vui lòng nhập đầy đủ email và mật khẩu!");
+            return;
+        }
+
+        let users = JSON.parse(localStorage.getItem('fpt_users') || '[]');
+
+        if (authMode === 'register') {
+            if (users.some(u => u.email === email)) {
+                alert("⚠️ Email này đã được đăng ký!");
+                return;
+            }
+            users.push({ email, password });
+            localStorage.setItem('fpt_users', JSON.stringify(users));
+            alert("✅ Đăng ký tài khoản thành công! Hệ thống sẽ tự động đăng nhập.");
+        } else {
+            const found = users.find(u => u.email === email && u.password === password);
+            // Cho phép đăng nhập tự do nếu dùng email hợp lệ lần đầu
+            if (!found && users.length > 0) {
+                // Kiểm tra nếu chưa có tài khoản nào khớp nhưng user muốn test nhanh
+                alert("⚠️ Sai mật khẩu hoặc email chưa được đăng ký!");
+                return;
+            }
+        }
+
+        completeLogin(email);
+    }
+
+    function loginWithGoogle() {
+        // Mô phỏng xác thực Google thành công và lấy thông tin cơ bản
+        const mockGoogleEmail = "student.fpt@fpt.edu.vn";
+        alert("✅ Đăng nhập tài khoản Google thành công!");
+        completeLogin(mockGoogleEmail);
+    }
+
+    function completeLogin(email) {
+        localStorage.setItem('fpt_logged_in_user', email);
+        document.getElementById('auth-overlay').style.display = 'none';
+        updateUserUI(email);
+    }
+
+    function logoutSystem() {
+        if (confirm("Bạn có chắc chắn muốn đăng xuất tài khoản?")) {
+            localStorage.removeItem('fpt_logged_in_user');
+            document.getElementById('auth-overlay').style.display = 'flex';
+        }
+    }
+
+    function updateUserUI(email) {
+        const namePart = email.split('@')[0];
+        document.getElementById('user-display-name').innerText = namePart;
+        document.getElementById('user-avatar-text').innerText = namePart.charAt(0).toUpperCase();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const loggedUser = localStorage.getItem('fpt_logged_in_user');
+        if (loggedUser) {
+            document.getElementById('auth-overlay').style.display = 'none';
+            updateUserUI(loggedUser);
+        }
+    });
+
     /* ================= ZOOM UI ================= */
     let currentZoom = parseFloat(localStorage.getItem('fpt_zoom_level') || '1.0');
 
@@ -759,7 +923,6 @@
             onSubjectChangeInFlashcardTab(subjects[0]);
         }
 
-        // Tự động khôi phục tiến độ (Auto-save restoration) nếu có phiên thi dở dang
         checkForAutoSaveProgress();
     });
 
@@ -1325,7 +1488,6 @@ ${fullText.slice(0, 7000)}`;
         userAnswers[qIdx] = selectedOpt;
         answeredSet.add(qIdx);
 
-        // Auto-save: Lưu tiến độ thí sinh vào LocalStorage liên tục
         autoSaveProgress();
 
         if (currentExam.mode === 'instant') {
@@ -1367,7 +1529,6 @@ ${fullText.slice(0, 7000)}`;
         if (saved) {
             try {
                 const data = JSON.parse(saved);
-                // Có thể khôi phục tự động nếu cần hoặc thông báo
             } catch(e){}
         }
     }
