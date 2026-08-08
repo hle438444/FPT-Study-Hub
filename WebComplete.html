@@ -88,16 +88,6 @@
         .auth-tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 10px; }
         .auth-tab { flex: 1; text-align: center; padding: 10px; font-weight: 700; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -2px; }
         .auth-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
-        .google-btn {
-            background: #ffffff; color: #333333; border: 1px solid var(--border-color); border-radius: var(--radius-md);
-            padding: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;
-            box-shadow: var(--shadow-sm); transition: var(--transition);
-        }
-        .google-btn:hover { background: #f1f5f9; }
-        .divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 0.85rem; margin: 5px 0; }
-        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
-        .divider::before { margin-right: .75em; }
-        .divider::after { margin-left: .75em; }
 
         /* USER PROFILE CHIP IN SIDEBAR */
         .user-profile-box {
@@ -303,14 +293,8 @@
         <div class="auth-card">
             <div class="auth-header">
                 <h2>FPT Study Hub</h2>
-                <p>Đăng nhập để bắt đầu học tập và quản lý tài liệu</p>
+                <p>Đăng nhập hoặc đăng ký tài khoản để bắt đầu</p>
             </div>
-            
-            <button class="google-btn" onclick="loginWithGoogle()">
-                <i class="fa-brands fa-google" style="color: #ea4335;"></i> Đăng nhập bằng tài khoản Google
-            </button>
-
-            <div class="divider">hoặc với email</div>
 
             <div class="auth-tabs">
                 <div class="auth-tab active" id="tab-login-btn" onclick="switchAuthTab('login')">Đăng Nhập</div>
@@ -723,8 +707,9 @@
     </main>
 
 <script>
-    /* ================= AUTHENTICATION LOGIC ================= */
+    /* ================= AUTHENTICATION & MULTI-ACCOUNT ISOLATION LOGIC ================= */
     let authMode = 'login'; // 'login' hoặc 'register'
+    let currentLoggedUser = localStorage.getItem('fpt_logged_in_user') || null;
 
     function switchAuthTab(mode) {
         authMode = mode;
@@ -761,36 +746,34 @@
             }
             users.push({ email, password });
             localStorage.setItem('fpt_users', JSON.stringify(users));
-            alert("✅ Đăng ký tài khoản thành công! Hệ thống sẽ tự động đăng nhập.");
+            alert("✅ Đăng ký tài khoản thành công! Dữ liệu của tài khoản sẽ được lưu trữ độc lập.");
+            completeLogin(email);
         } else {
-            const found = users.find(u => u.email === email && u.password === password);
-            // Cho phép đăng nhập tự do nếu dùng email hợp lệ lần đầu
-            if (!found && users.length > 0) {
-                // Kiểm tra nếu chưa có tài khoản nào khớp nhưng user muốn test nhanh
-                alert("⚠️ Sai mật khẩu hoặc email chưa được đăng ký!");
+            const found = users.find(u => u.email === email);
+            if (!found) {
+                alert("⚠️ Email chưa được đăng ký trong hệ thống. Vui lòng chuyển sang tab Đăng Ký!");
                 return;
             }
+            if (found.password !== password) {
+                alert("❌ Sai mật khẩu! Truy cập bị từ chối.");
+                return;
+            }
+            completeLogin(email);
         }
-
-        completeLogin(email);
-    }
-
-    function loginWithGoogle() {
-        // Mô phỏng xác thực Google thành công và lấy thông tin cơ bản
-        const mockGoogleEmail = "student.fpt@fpt.edu.vn";
-        alert("✅ Đăng nhập tài khoản Google thành công!");
-        completeLogin(mockGoogleEmail);
     }
 
     function completeLogin(email) {
+        currentLoggedUser = email;
         localStorage.setItem('fpt_logged_in_user', email);
         document.getElementById('auth-overlay').style.display = 'none';
         updateUserUI(email);
+        reloadUserDataForCurrentAccount();
     }
 
     function logoutSystem() {
         if (confirm("Bạn có chắc chắn muốn đăng xuất tài khoản?")) {
             localStorage.removeItem('fpt_logged_in_user');
+            currentLoggedUser = null;
             document.getElementById('auth-overlay').style.display = 'flex';
         }
     }
@@ -801,13 +784,49 @@
         document.getElementById('user-avatar-text').innerText = namePart.charAt(0).toUpperCase();
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
+    // Hàm lấy key lưu trữ riêng biệt cho từng tài khoản
+    function getUserKey(key) {
+        return `_user_${currentLoggedUser}_${key}`;
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
         const loggedUser = localStorage.getItem('fpt_logged_in_user');
         if (loggedUser) {
+            currentLoggedUser = loggedUser;
             document.getElementById('auth-overlay').style.display = 'none';
             updateUserUI(loggedUser);
         }
+        applyZoom();
+        await initDB();
+        reloadUserDataForCurrentAccount();
     });
+
+    async function reloadUserDataForCurrentAccount() {
+        if (!currentLoggedUser) return;
+        
+        // Tải dữ liệu riêng biệt theo tài khoản
+        subjects = JSON.parse(localStorage.getItem(getUserKey('fpt_subjects')) || JSON.stringify(["SSA101", "PRF192", "CEA201", "CSD201", "DBI201"]));
+        flashcardList = JSON.parse(localStorage.getItem(getUserKey('fpt_flashcards')) || JSON.stringify([
+            { q: "FPT Study Hub hỗ trợ những định dạng file tài liệu nào?", a: "Hỗ trợ định dạng PDF, văn bản txt/code, Word (.docx) và các loại hình ảnh (jpg, png) qua công nghệ Tesseract OCR sắc nét." },
+            { q: "Làm cách nào để lưu trữ tài liệu lâu dài không cần tải lại nhiều lần?", a: "Sử dụng tính năng 'Kho Môn Học & File', file sẽ được lưu an toàn vào cơ sở dữ liệu IndexedDB của trình duyệt." },
+            { q: "Chế độ làm bài thi tức thời (Instant) có đặc điểm gì?", a: "Hệ thống sẽ hiển thị ngay đáp án đúng/sai và lời giải thích ngay khi bạn vừa click chọn một đáp án." }
+        ]));
+        mistakeNotebook = JSON.parse(localStorage.getItem(getUserKey('fpt_mistakes')) || '[]');
+
+        renderSubjectListUI();
+        renderFlashcard();
+        renderMistakes();
+        renderRoadmap();
+        
+        const savedTheme = localStorage.getItem(getUserKey('fpt_theme')) || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+
+        if (subjects.length > 0) {
+            onSubjectChangeInCreateTab(subjects[0]);
+            onSubjectChangeInFlashcardTab(subjects[0]);
+        }
+    }
 
     /* ================= ZOOM UI ================= */
     let currentZoom = parseFloat(localStorage.getItem('fpt_zoom_level') || '1.0');
@@ -830,7 +849,7 @@
         document.getElementById('img-modal').style.display = 'flex';
     }
 
-    /* ================= INDEXED DB ================= */
+    /* ================= INDEXED DB (Phân tách file theo tài khoản) ================= */
     let db = null;
     function initDB() {
         return new Promise((resolve, reject) => {
@@ -853,20 +872,22 @@
         return new Promise((resolve) => {
             const tx = db.transaction('subject_files', 'readwrite');
             const store = tx.objectStore('subject_files');
-            const id = `${subjectCode}_${fileName}`;
-            store.put({ id, subjectCode, fileName, content: fileText, date: new Date().toLocaleDateString('vi-VN') });
+            // Thêm email tài khoản vào ID để độc lập hoàn toàn giữa các tài khoản
+            const id = `${currentLoggedUser}_${subjectCode}_${fileName}`;
+            store.put({ id, user: currentLoggedUser, subjectCode, fileName, content: fileText, date: new Date().toLocaleDateString('vi-VN') });
             tx.oncomplete = () => resolve();
         });
     }
 
     function getFilesBySubjectFromDB(subjectCode) {
         return new Promise((resolve) => {
-            if (!db) { resolve([]); return; }
+            if (!db || !currentLoggedUser) { resolve([]); return; }
             const tx = db.transaction('subject_files', 'readonly');
             const store = tx.objectStore('subject_files');
             const req = store.getAll();
             req.onsuccess = () => {
-                const results = req.result.filter(item => item.subjectCode === subjectCode);
+                // Chỉ lấy file thuộc đúng tài khoản đang đăng nhập
+                const results = req.result.filter(item => item.user === currentLoggedUser && item.subjectCode === subjectCode);
                 resolve(results);
             };
         });
@@ -882,7 +903,7 @@
     }
 
     /* ================= STATE ================= */
-    let subjects = JSON.parse(localStorage.getItem('fpt_subjects') || JSON.stringify(["SSA101", "PRF192", "CEA201", "CSD201", "DBI201"]));
+    let subjects = [];
     let uploadedFiles = [];
     let uploadedFlashcardFiles = [];
     let currentExam = null;
@@ -896,42 +917,17 @@
     let selectedSubjectFilter = 'ALL';
     let userAnswers = {};
 
-    let flashcardList = JSON.parse(localStorage.getItem('fpt_flashcards') || JSON.stringify([
-        { q: "FPT Study Hub hỗ trợ những định dạng file tài liệu nào?", a: "Hỗ trợ định dạng PDF, văn bản txt/code, Word (.docx) và các loại hình ảnh (jpg, png) qua công nghệ Tesseract OCR sắc nét." },
-        { q: "Làm cách nào để lưu trữ tài liệu lâu dài không cần tải lại nhiều lần?", a: "Sử dụng tính năng 'Kho Môn Học & File', file sẽ được lưu an toàn vào cơ sở dữ liệu IndexedDB của trình duyệt." },
-        { q: "Chế độ làm bài thi tức thời (Instant) có đặc điểm gì?", a: "Hệ thống sẽ hiển thị ngay đáp án đúng/sai và lời giải thích ngay khi bạn vừa click chọn một đáp án." }
-    ]));
+    let flashcardList = [];
     let currentFlashcardIdx = 0;
     let isFlashcardFlipped = false;
-
-    let mistakeNotebook = JSON.parse(localStorage.getItem('fpt_mistakes') || '[]');
-
-    window.addEventListener('DOMContentLoaded', async () => {
-        applyZoom();
-        await initDB();
-        renderSubjectListUI();
-        renderFlashcard();
-        renderMistakes();
-        renderRoadmap();
-        
-        const savedTheme = localStorage.getItem('fpt_theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        updateThemeIcon(savedTheme);
-
-        if (subjects.length > 0) {
-            onSubjectChangeInCreateTab(subjects[0]);
-            onSubjectChangeInFlashcardTab(subjects[0]);
-        }
-
-        checkForAutoSaveProgress();
-    });
+    let mistakeNotebook = [];
 
     function toggleMobileSidebar() {
         document.getElementById('app-sidebar').classList.toggle('mobile-open');
     }
 
     function renderSubjectListUI() {
-        localStorage.setItem('fpt_subjects', JSON.stringify(subjects));
+        localStorage.setItem(getUserKey('fpt_subjects'), JSON.stringify(subjects));
 
         const sidebarList = document.getElementById('sidebar-subject-list');
         sidebarList.innerHTML = `<div class="subject-chip ${selectedSubjectFilter==='ALL'?'active':''}" onclick="filterSubject('ALL', this)"><span>Tất Cả Môn</span></div>`;
@@ -980,7 +976,7 @@
 
     function renameSubject(oldName) {
         const newName = prompt(`Nhập tên mới cho môn [${oldName}]:`, oldName);
-        if (newName && newName.trim() && newName.trim().toUpperCase() !== oldName) {
+        if (newName && name.trim() && newName.trim().toUpperCase() !== oldName) {
             const cleanName = newName.trim().toUpperCase();
             const idx = subjects.indexOf(oldName);
             if (idx !== -1) {
@@ -1200,7 +1196,7 @@ ${fullText.slice(0, 7000)}`;
             const newCards = JSON.parse(raw);
             if (Array.isArray(newCards)) {
                 flashcardList = newCards;
-                localStorage.setItem('fpt_flashcards', JSON.stringify(flashcardList));
+                localStorage.setItem(getUserKey('fpt_flashcards'), JSON.stringify(flashcardList));
                 currentFlashcardIdx = 0;
                 renderFlashcard();
                 alert("✅ Đã cập nhật bộ thẻ Flashcard thành công!");
@@ -1246,7 +1242,7 @@ ${fullText.slice(0, 7000)}`;
         if (!mistakeNotebook.some(m => m.q === qData.q)) {
             if (!qData.comments) qData.comments = ["Chào mừng bạn đến phần thảo luận câu hỏi này!"];
             mistakeNotebook.push(qData);
-            localStorage.setItem('fpt_mistakes', JSON.stringify(mistakeNotebook));
+            localStorage.setItem(getUserKey('fpt_mistakes'), JSON.stringify(mistakeNotebook));
         }
     }
 
@@ -1293,14 +1289,14 @@ ${fullText.slice(0, 7000)}`;
         if (!val) return;
         if (!mistakeNotebook[idx].comments) mistakeNotebook[idx].comments = [];
         mistakeNotebook[idx].comments.push("Học sinh: " + val);
-        localStorage.setItem('fpt_mistakes', JSON.stringify(mistakeNotebook));
+        localStorage.setItem(getUserKey('fpt_mistakes'), JSON.stringify(mistakeNotebook));
         renderMistakes();
     }
 
     function clearMistakes() {
         if (confirm("Bạn có chắc chắn muốn xóa sạch Sổ tay câu hỏi sai không?")) {
             mistakeNotebook = [];
-            localStorage.removeItem('fpt_mistakes');
+            localStorage.removeItem(getUserKey('fpt_mistakes'));
             renderMistakes();
         }
     }
@@ -1310,7 +1306,7 @@ ${fullText.slice(0, 7000)}`;
         const container = document.getElementById('roadmap-content');
         if (!container) return;
 
-        let history = JSON.parse(localStorage.getItem('fpt_exam_history') || '[]');
+        let history = JSON.parse(localStorage.getItem(getUserKey('fpt_exam_history')) || '[]');
         let totalExams = history.length;
         let avgScore = 0;
         if (totalExams > 0) {
@@ -1449,9 +1445,9 @@ ${fullText.slice(0, 7000)}`;
         const container = document.getElementById('question-palette-container');
         if (!container) return;
         container.innerHTML = questionsList.map((q, idx) => {
-            let cssClass = 'unanswered'; // Đỏ: Chưa làm
-            if (answeredSet.has(idx)) cssClass = 'answered'; // Xanh: Đã làm
-            if (flaggedSet.has(idx)) cssClass = 'flagged'; // Vàng: Đánh dấu xem lại
+            let cssClass = 'unanswered';
+            if (answeredSet.has(idx)) cssClass = 'answered';
+            if (flaggedSet.has(idx)) cssClass = 'flagged';
             return `<button class="palette-btn ${cssClass}" onclick="scrollToQuestion(${idx})" id="palette-btn-${idx}">${idx+1}</button>`;
         }).join('');
     }
@@ -1521,16 +1517,7 @@ ${fullText.slice(0, 7000)}`;
             userAnswers: userAnswers,
             timeRemaining: timeRemaining
         };
-        localStorage.setItem('fpt_autosave_exam', JSON.stringify(saveData));
-    }
-
-    function checkForAutoSaveProgress() {
-        const saved = localStorage.getItem('fpt_autosave_exam');
-        if (saved) {
-            try {
-                const data = JSON.parse(saved);
-            } catch(e){}
-        }
+        localStorage.setItem(getUserKey('fpt_autosave_exam'), JSON.stringify(saveData));
     }
 
     function updateProgress() {
@@ -1552,7 +1539,7 @@ ${fullText.slice(0, 7000)}`;
 
     function submitQuiz() {
         clearInterval(timerInterval);
-        localStorage.removeItem('fpt_autosave_exam');
+        localStorage.removeItem(getUserKey('fpt_autosave_exam'));
 
         if (currentExam.mode === 'submit') {
             correctCount = 0;
@@ -1579,14 +1566,14 @@ ${fullText.slice(0, 7000)}`;
     }
 
     function saveToHistory(exam) {
-        let history = JSON.parse(localStorage.getItem('fpt_exam_history') || '[]');
+        let history = JSON.parse(localStorage.getItem(getUserKey('fpt_exam_history')) || '[]');
         history.unshift(exam);
-        localStorage.setItem('fpt_exam_history', JSON.stringify(history.slice(0, 20)));
+        localStorage.setItem(getUserKey('fpt_exam_history'), JSON.stringify(history.slice(0, 20)));
     }
 
     function renderHistory() {
         const container = document.getElementById('history-container');
-        let history = JSON.parse(localStorage.getItem('fpt_exam_history') || '[]');
+        let history = JSON.parse(localStorage.getItem(getUserKey('fpt_exam_history')) || '[]');
         
         if (history.length === 0) {
             container.innerHTML = `<p style="font-size:0.95rem; color:var(--text-muted); grid-column: 1/-1;">Chưa có lịch sử bài thi nào được lưu.</p>`;
@@ -1610,23 +1597,23 @@ ${fullText.slice(0, 7000)}`;
 
     function deleteSingleHistory(id) {
         if (confirm("Bạn có chắc chắn muốn xóa bài kiểm tra này khỏi lịch sử không?")) {
-            let history = JSON.parse(localStorage.getItem('fpt_exam_history') || '[]');
+            let history = JSON.parse(localStorage.getItem(getUserKey('fpt_exam_history')) || '[]');
             history = history.filter(item => item.id !== id);
-            localStorage.setItem('fpt_exam_history', JSON.stringify(history));
+            localStorage.setItem(getUserKey('fpt_exam_history'), JSON.stringify(history));
             renderHistory();
         }
     }
 
     function clearAllHistory() {
         if (confirm("⚠️ Cảnh báo: Thao tác này sẽ xóa sạch toàn bộ lịch sử các bài kiểm tra bạn đã làm. Bạn có chắc chắn muốn tiếp tục?")) {
-            localStorage.removeItem('fpt_exam_history');
+            localStorage.removeItem(getUserKey('fpt_exam_history'));
             renderHistory();
             alert("🗑️ Đã xóa toàn bộ lịch sử thành công!");
         }
     }
 
     function reloadExam(id) {
-        const history = JSON.parse(localStorage.getItem('fpt_exam_history') || '[]');
+        const history = JSON.parse(localStorage.getItem(getUserKey('fpt_exam_history')) || '[]');
         const target = history.find(h => h.id === id);
         if (target) startQuiz(target);
     }
@@ -1636,7 +1623,7 @@ ${fullText.slice(0, 7000)}`;
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('fpt_theme', newTheme);
+        localStorage.setItem(getUserKey('fpt_theme'), newTheme);
         updateThemeIcon(newTheme);
     }
 
